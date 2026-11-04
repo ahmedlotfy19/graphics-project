@@ -13,7 +13,7 @@ namespace Environment
     void drawBackground(Renderer2D& r, float)
     {
         r.rectGradient(0, 0, (float)VIRTUAL_W, (float)VIRTUAL_H, Colors::rgb(30, 25, 40), Colors::rgb(70, 50, 70));
-        r.circle(1100, 560, 40, Colors::rgb(230, 225, 200));   // moon
+        r.circle(1100, 560, 40, Colors::rgb(230, 225, 200));
         for (int lane = 0; lane < NUM_LANES; ++lane)
         {
             Color c = (lane % 2 == 0) ? Colors::rgb(70, 80, 50) : Colors::rgb(60, 70, 45);

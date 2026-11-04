@@ -9,7 +9,7 @@
 namespace
 {
     const float kGravity     = -900.0f;
-    const float kPickupRange = 30.0f;   // added to the player's half width
+    const float kPickupRange = 30.0f;
     const float kRadius      = 13.0f;
 }
 
@@ -21,7 +21,7 @@ namespace Collectibles
         c.lane = lane;
         c.x = x;
         c.y = 40.0f;
-        c.vy = 320.0f;     // pops up out of the zombie, then lands
+        c.vy = 320.0f;
         c.value = value;
         w.collectibles.push_back(c);
     }
@@ -33,7 +33,6 @@ namespace Collectibles
             if (!c.alive) continue;
             c.age += dt;
 
-            // Pop-up arc, then rest on the ground with a small bounce.
             if (c.y > 0.0f || c.vy > 0.0f)
             {
                 c.vy += kGravity * dt;
@@ -45,7 +44,6 @@ namespace Collectibles
                 }
             }
 
-            // Collected when a player in the same lane touches it.
             for (const Player& p : w.players)
             {
                 if (!p.alive || p.lane != c.lane) continue;
@@ -69,11 +67,9 @@ namespace Collectibles
             float bob = (c.y == 0.0f) ? 3.0f * std::sin(c.age * 4.0f) : 0.0f;
             float cy = ground + kRadius + 4.0f + c.y + bob;
 
-            // shadow on the ground, shrinks while the coin is in the air
             float shadow = 1.0f / (1.0f + c.y * 0.01f);
             r.ellipse(c.x, ground + 2, kRadius * shadow, 4 * shadow, Color(0, 0, 0, 0.35f), 16);
 
-            // soft glow so coins stand out against the ground
             float pulse = 0.5f + 0.5f * std::sin(c.age * 5.0f);
             r.circle(c.x, cy, kRadius + 6 + pulse * 3, Colors::rgb(255, 220, 90, 50), 20);
             UI::coinIcon(r, c.x, cy, kRadius, c.age * 4.0f);

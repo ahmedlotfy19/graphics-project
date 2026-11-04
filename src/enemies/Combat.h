@@ -5,7 +5,6 @@
 //  Coordinate with Member 2: use Players::damage(), Players::isProtected()
 //  and Player::pose (Jumping avoids Low, Ducking avoids High).
 // ============================================================================
-
 struct World;
 
 namespace Combat

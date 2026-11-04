@@ -6,7 +6,6 @@
 //  Tip: reuse Players::draw / Enemies::draw-style model code once Members 2/3
 //  have them, so the intro characters match the gameplay ones.
 // ============================================================================
-
 class Renderer2D;
 
 namespace Cutscene
@@ -14,6 +13,6 @@ namespace Cutscene
     void  reset();
     void  update(float dt);
     void  draw(Renderer2D& r);
-    bool  finished();          // Game switches to gameplay when this is true
+    bool  finished();
     float duration();
 }

@@ -55,7 +55,6 @@ namespace Players
             if (!p.alive) continue;
             p.anim += dt;
 
-            // Stop when touching a zombie in the same lane.
             p.engaged = false;
             for (const Enemy& e : w.enemies)
                 if (e.alive && e.lane == p.lane && std::fabs(e.x - p.x) < p.halfWidth + e.halfWidth)

@@ -48,7 +48,7 @@ void main()
         return s;
     }
 
-    const size_t kMaxVertices = 60000;   // flush when the batch gets this big
+    const size_t kMaxVertices = 60000;
     const float  kPi = 3.14159265358979f;
 }
 
@@ -101,7 +101,6 @@ void Renderer2D::shutdown()
 
 void Renderer2D::beginFrame(int fbW, int fbH)
 {
-    // Letterbox: keep 16:9, centre the image, black bars elsewhere.
     float sx = fbW / (float)m_virtualW;
     float sy = fbH / (float)m_virtualH;
     m_scale = std::max(0.0001f, std::min(sx, sy));
@@ -139,7 +138,7 @@ void Renderer2D::flush()
 
     glBindVertexArray(m_vao);
     glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferData(GL_ARRAY_BUFFER, kMaxVertices * sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW); // orphan
+    glBufferData(GL_ARRAY_BUFFER, kMaxVertices * sizeof(Vertex), nullptr, GL_DYNAMIC_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, m_vertices.size() * sizeof(Vertex), m_vertices.data());
     glDrawArrays(GL_TRIANGLES, 0, (GLsizei)m_vertices.size());
     glBindVertexArray(0);
@@ -147,13 +146,11 @@ void Renderer2D::flush()
     m_vertices.clear();
 }
 
-// ---- transform stack ---------------------------------------------------------
-
 void Renderer2D::push() { m_stack.push_back(m_state); }
 
 void Renderer2D::pop()
 {
-    if (m_stack.empty()) return;   // unbalanced pop: ignore instead of crashing
+    if (m_stack.empty()) return;
     m_state = m_stack.back();
     m_stack.pop_back();
 }
@@ -179,8 +176,6 @@ void Renderer2D::setDamageTint(float amount) { m_state.damage = glm::clamp(amoun
 void Renderer2D::setGrayscale(bool on)       { m_state.gray = on; }
 void Renderer2D::setAlpha(float alpha)       { m_state.alpha = glm::clamp(alpha, 0.0f, 1.0f); }
 
-// ---- internals ----------------------------------------------------------------
-
 glm::vec2 Renderer2D::xf(float x, float y) const
 {
     glm::vec4 p = m_state.transform * glm::vec4(x, y, 0.0f, 1.0f);
@@ -191,7 +186,6 @@ Color Renderer2D::filter(Color c) const
 {
     if (m_state.damage > 0.0f)
     {
-        // Blend toward a strong red. Stronger tint the more damage was taken.
         const glm::vec3 hurt(0.95f, 0.05f, 0.05f);
         glm::vec3 rgb = glm::mix(glm::vec3(c), hurt, m_state.damage * 0.8f);
         c = Color(rgb, c.a);
@@ -199,7 +193,7 @@ Color Renderer2D::filter(Color c) const
     if (m_state.gray)
     {
         float l = 0.299f * c.r + 0.587f * c.g + 0.114f * c.b;
-        l = 0.15f + l * 0.6f;   // flatten contrast so it reads as "disabled"
+        l = 0.15f + l * 0.6f;
         c = Color(l, l, l, c.a);
     }
     c.a *= m_state.alpha;
@@ -210,8 +204,6 @@ void Renderer2D::pushVertex(glm::vec2 p, Color c)
 {
     m_vertices.push_back({ p.x, p.y, c.r, c.g, c.b, c.a });
 }
-
-// ---- primitives ---------------------------------------------------------------
 
 void Renderer2D::triangle(glm::vec2 a, glm::vec2 b, glm::vec2 c, Color col)
 {

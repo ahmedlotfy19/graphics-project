@@ -40,7 +40,7 @@ namespace PlayerCards
         for (int i = 0; i < (int)PlayerType::Count; ++i)
         {
             PlayerType t = (PlayerType)i;
-            if (!isUnlocked(w, t)) continue;                       // locked: no hover, no click
+            if (!isUnlocked(w, t)) continue;
             if (!Input::mouseInRect(cardX(i), CARDS_Y, CARD_W, CARD_H)) continue;
 
             w.cards.hovered = i;

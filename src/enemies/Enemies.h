@@ -14,9 +14,9 @@ struct Projectile;
 
 enum class EnemyType
 {
-    UpperRanged = 0,   // Easy   - attacks from ABOVE (player ducks), 5 hp
-    LowerRanged = 1,   // Medium - attacks from BELOW (player jumps), 5 hp
-    Melee       = 2,   // Hard   - runs in, close range, 2 dmg, 7 hp
+    UpperRanged = 0,
+    LowerRanged = 1,
+    Melee       = 2,
     Count       = 3
 };
 
@@ -28,9 +28,9 @@ struct Enemy
     float x = ENEMY_SPAWN_X;
     int   hp = 1, maxHp = 1;
     float halfWidth = 24.0f;
-    float height = 95.0f;      // model height; health bar is drawn above this
+    float height = 95.0f;
     bool  engaged = false;
-    bool  alive = true;        // set false to remove (Core erases dead entries)
+    bool  alive = true;
 
     // ---- Member 3's own fields ----
     float attackTimer = 0.0f;
@@ -43,9 +43,7 @@ namespace Enemies
     void spawn(World& w, EnemyType t, int lane);
     void update(World& w, float dt);
     void draw(Renderer2D& r, const World& w, const Enemy& e);
-    void drawProjectile(Renderer2D& r, const Projectile& pr);   // projectiles with fromPlayer == false
+    void drawProjectile(Renderer2D& r, const Projectile& pr);
 
-    // Applies damage; at 0 hp marks dead, plays sound and drops a collectible
-    // via Collectibles::spawn(). Called by Combat.
     void damage(World& w, Enemy& e, int amount);
 }

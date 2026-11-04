@@ -34,7 +34,6 @@ namespace
         return true;
     }
 
-    // Finds assets/audio/<name>.(wav|mp3|flac). Empty string if none.
     std::string resolve(const std::string& name)
     {
         static const char* exts[] = { ".wav", ".mp3", ".flac" };
@@ -81,7 +80,7 @@ namespace Audio
         if (!g_ready || g_muted) return;
         std::string path = resolve(sfxName);
         if (path.empty()) return;
-        ma_engine_play_sound(&g_engine, path.c_str(), nullptr);   // fire and forget
+        ma_engine_play_sound(&g_engine, path.c_str(), nullptr);
     }
 
     void playMusic(const char* musicName)
@@ -95,7 +94,7 @@ namespace Audio
                                     nullptr, nullptr, &g_music) != MA_SUCCESS)
             return;
         ma_sound_set_looping(&g_music, MA_TRUE);
-        ma_sound_set_volume(&g_music, 0.55f);   // keep music under the effects
+        ma_sound_set_volume(&g_music, 0.55f);
         ma_sound_start(&g_music);
         g_musicLoaded = true;
         g_musicName = musicName;

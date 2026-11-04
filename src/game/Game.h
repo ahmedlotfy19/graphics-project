@@ -1,8 +1,4 @@
 #pragma once
-// ============================================================================
-//  Game  -  state machine (menus / cutscene / gameplay), HUD, win/lose.
-//  Owner: Member 1.
-// ============================================================================
 #include "World.h"
 
 struct GLFWwindow;
@@ -14,7 +10,7 @@ class Game
 {
 public:
     bool init(GLFWwindow* window, Renderer2D* renderer);
-    void frame(float dt);          // update + draw one frame
+    void frame(float dt);
     void shutdown();
 
 private:
@@ -25,7 +21,7 @@ private:
     void removeDead();
     void checkWinLose();
 
-    void drawScene();              // world: background, characters, projectiles...
+    void drawScene();
     void drawHealthBars();
     void drawHUD();
     void drawWaveBanner();
@@ -40,10 +36,10 @@ private:
     Renderer2D* m_r = nullptr;
     World       m_world;
     GameState   m_state = GameState::MainMenu;
-    float       m_stateTime = 0.0f;   // seconds since the last state change
-    float       m_menuTime = 0.0f;    // animates menu backgrounds
+    float       m_stateTime = 0.0f;
+    float       m_menuTime = 0.0f;
 
-    int   m_shownCoins = 0;           // for the coin counter "pop" animation
+    int   m_shownCoins = 0;
     float m_coinPulse = 0.0f;
     int   m_lastWave = 0;
     float m_bannerTime = 0.0f;

@@ -1,22 +1,10 @@
 #pragma once
-// ============================================================================
-//  Audio  -  music + sound effects (bonus), using miniaudio (single header).
-//  Owner: Member 1 (Core).
-//
-//      Audio::play(Sfx::Coin);
-//      Audio::playMusic(Music::Gameplay);
-//
-//  Sound files live in  assets/audio/<name>.wav  (or .mp3 / .flac).
-//  A missing file is NOT an error: it prints one warning and stays silent,
-//  so the game always runs even before real sounds are added.
-//  To add a new effect: add a name to the Sfx namespace and drop the file in.
-// ============================================================================
 
 namespace Sfx
 {
-    constexpr const char* Click         = "click";          // menu buttons
+    constexpr const char* Click         = "click";
     constexpr const char* LaneSelect    = "lane_select";
-    constexpr const char* Place         = "place";          // player placed
+    constexpr const char* Place         = "place";
     constexpr const char* PlayerAttack  = "player_attack";
     constexpr const char* EnemyAttack   = "enemy_attack";
     constexpr const char* Hit           = "hit";
@@ -40,13 +28,13 @@ namespace Audio
     void  shutdown();
 
     void  play(const char* sfxName);
-    void  playMusic(const char* musicName);   // loops; no-op if already playing it
+    void  playMusic(const char* musicName);
     void  stopMusic();
 
-    void  setVolume(float v);                 // 0..1, master
+    void  setVolume(float v);
     float volume();
-    void  volumeUp();                         // +10%
-    void  volumeDown();                       // -10%
+    void  volumeUp();
+    void  volumeDown();
     void  setMuted(bool m);
     bool  muted();
 }

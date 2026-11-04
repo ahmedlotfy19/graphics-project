@@ -13,9 +13,9 @@ namespace
     EnemyType pickType(int wave)
     {
         int roll = std::rand() % 100;
-        if (wave == 0) return EnemyType::UpperRanged;                                    // easy only
-        if (wave == 1) return roll < 55 ? EnemyType::UpperRanged : EnemyType::LowerRanged; // easy + medium
-        if (roll < 35) return EnemyType::UpperRanged;                                    // all three
+        if (wave == 0) return EnemyType::UpperRanged;
+        if (wave == 1) return roll < 55 ? EnemyType::UpperRanged : EnemyType::LowerRanged;
+        if (roll < 35) return EnemyType::UpperRanged;
         if (roll < 70) return EnemyType::LowerRanged;
         return EnemyType::Melee;
     }
@@ -30,7 +30,6 @@ namespace Waves
 
         if (s.betweenWaves)
         {
-            // Next wave only once the field is clear.
             if (!w.enemies.empty()) return;
             s.timer -= dt;
             if (s.timer > 0.0f) return;

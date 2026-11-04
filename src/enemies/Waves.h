@@ -5,21 +5,20 @@
 //  A wave "ends" when its last enemy spawns; the next wave starts only after
 //  every enemy on screen is dead.
 // ============================================================================
-
 struct World;
 
 struct WaveState
 {
-    int   index = 0;          // current wave 0..NUM_WAVES-1
-    int   spawned = 0;        // enemies spawned in the current wave
-    float timer = 2.0f;       // countdown to next spawn
+    int   index = 0;
+    int   spawned = 0;
+    float timer = 2.0f;
     bool  betweenWaves = false;
-    bool  finished = false;   // true once the LAST enemy of the LAST wave spawned
+    bool  finished = false;
 };
 
 namespace Waves
 {
     void update(World& w, float dt);
-    int  currentWave(const World& w);        // 1-based, for the HUD
-    bool allSpawned(const World& w);         // Core uses this + "no enemies left" to detect a win
+    int  currentWave(const World& w);
+    bool allSpawned(const World& w);
 }

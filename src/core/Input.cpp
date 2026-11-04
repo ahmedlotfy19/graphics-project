@@ -57,9 +57,8 @@ namespace Input
         int winW, winH, fbW, fbH;
         glfwGetWindowSize(g_window, &winW, &winH);
         glfwGetFramebufferSize(g_window, &fbW, &fbH);
-        if (winW <= 0 || winH <= 0) return;   // minimised
+        if (winW <= 0 || winH <= 0) return;
 
-        // window coords (y down) -> framebuffer pixels -> virtual (y up)
         float px = (float)cx * fbW / winW;
         float py = (float)cy * fbH / winH;
         float s = r.viewportScale();

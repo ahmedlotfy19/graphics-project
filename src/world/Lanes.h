@@ -20,5 +20,5 @@ struct LaneState
 namespace Lanes
 {
     void update(World& w);
-    void draw(Renderer2D& r, const World& w);    // highlight overlays (drawn over the ground)
+    void draw(Renderer2D& r, const World& w);
 }

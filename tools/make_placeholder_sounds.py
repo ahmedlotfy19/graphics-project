@@ -1,7 +1,3 @@
-"""Generates simple synthesized placeholder sounds into assets/audio/.
-Replace any file with a real sound of the same name (wav/mp3/flac).
-Run from the project root:  python tools/make_placeholder_sounds.py
-"""
 import math
 import os
 import random
@@ -68,7 +64,6 @@ write("coin", tone(988, 988, 0.07, square, 0.2, 3) + tone(1319, 1319, 0.25, squa
 write("jump", tone(300, 700, 0.15, vol=0.35))
 write("win", sum((tone(f, f, 0.18, square, 0.22, 1.5) for f in (523, 659, 784, 1047)), []))
 write("lose", sum((tone(f, f * 0.97, 0.35, square, 0.22, 1.2) for f in (392, 349, 311, 262)), []))
-# Short eerie loops (minor key)
 write("music_menu", music([220, 262, 247, 196], 0.6, 4, [110, 131, 123, 98]))
 write("music_game", music([294, 349, 330, 262, 294, 392, 349, 330], 0.3, 4, [147, 147, 175, 131]))
 print("wrote placeholder sounds to", OUT)

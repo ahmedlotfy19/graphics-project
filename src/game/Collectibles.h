@@ -1,9 +1,4 @@
 #pragma once
-// ============================================================================
-//  Collectibles  -  coins dropped by zombies.   Owner: Member 1
-//  Enemies::damage() calls Collectibles::spawn() when a zombie dies.
-//  A coin is collected when any player in the same lane touches it.
-// ============================================================================
 
 class Renderer2D;
 struct World;
