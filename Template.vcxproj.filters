@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{34ef91a0-2e99-5173-b93b-60637269e146}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core">
+      <UniqueIdentifier>{6378827e-0dad-5ead-acd6-c1a2a78acb98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\enemies">
+      <UniqueIdentifier>{4ebbef5e-508a-581a-b361-0bd12618e035}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\game">
+      <UniqueIdentifier>{d81713dc-c0e3-5c3e-92cf-ae8f34f9a385}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\players">
+      <UniqueIdentifier>{0c249a16-ebf0-56da-beda-474fb6224dd7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\world">
+      <UniqueIdentifier>{ab7c6ff6-6e27-58b0-a995-11bba120df87}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\core\Audio.cpp">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\Input.cpp">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\Renderer2D.cpp">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\Text.cpp">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\UI.cpp">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\enemies\Combat.cpp">
+      <Filter>src\enemies</Filter>
+    </ClCompile>
+    <ClCompile Include="src\enemies\Enemies.cpp">
+      <Filter>src\enemies</Filter>
+    </ClCompile>
+    <ClCompile Include="src\enemies\Waves.cpp">
+      <Filter>src\enemies</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Collectibles.cpp">
+      <Filter>src\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\game\Game.cpp">
+      <Filter>src\game</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\players\PlayerCards.cpp">
+      <Filter>src\players</Filter>
+    </ClCompile>
+    <ClCompile Include="src\players\Players.cpp">
+      <Filter>src\players</Filter>
+    </ClCompile>
+    <ClCompile Include="src\world\Cutscene.cpp">
+      <Filter>src\world</Filter>
+    </ClCompile>
+    <ClCompile Include="src\world\Environment.cpp">
+      <Filter>src\world</Filter>
+    </ClCompile>
+    <ClCompile Include="src\world\Lanes.cpp">
+      <Filter>src\world</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\miniaudio_impl.c">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\glad.c">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\Config.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Audio.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Input.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Renderer2D.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\Text.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\UI.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\enemies\Combat.h">
+      <Filter>src\enemies</Filter>
+    </ClInclude>
+    <ClInclude Include="src\enemies\Enemies.h">
+      <Filter>src\enemies</Filter>
+    </ClInclude>
+    <ClInclude Include="src\enemies\Waves.h">
+      <Filter>src\enemies</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Collectibles.h">
+      <Filter>src\game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Game.h">
+      <Filter>src\game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\Projectile.h">
+      <Filter>src\game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\game\World.h">
+      <Filter>src\game</Filter>
+    </ClInclude>
+    <ClInclude Include="src\players\PlayerCards.h">
+      <Filter>src\players</Filter>
+    </ClInclude>
+    <ClInclude Include="src\players\Players.h">
+      <Filter>src\players</Filter>
+    </ClInclude>
+    <ClInclude Include="src\world\Cutscene.h">
+      <Filter>src\world</Filter>
+    </ClInclude>
+    <ClInclude Include="src\world\Environment.h">
+      <Filter>src\world</Filter>
+    </ClInclude>
+    <ClInclude Include="src\world\Lanes.h">
+      <Filter>src\world</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

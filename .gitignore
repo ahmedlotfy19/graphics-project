@@ -1,0 +1,16 @@
+# Visual Studio build output & per-user files
+.vs/
+x64/
+Debug/
+Release/
+*.user
+*.suo
+*.pdb
+*.ilk
+*.obj
+*.exe
+*.log
+*.tlog
+*.idb
+*.ipch
+.vscode/
