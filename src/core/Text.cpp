@@ -1,4 +1,5 @@
 #include "Text.h"
+#include <vector>
 
 static const unsigned char font[95][7] = {
     {0x00,0x00,0x00,0x00,0x00,0x00,0x00},
@@ -86,20 +87,21 @@ namespace Text
     void draw(Renderer2D& r, const std::string& text, float x, float y, float size, Color color, Align align)
     {
         float pixel = size / 7.0f;
-        float startX = x;
-        float lineY = y;
 
-        size_t lineStart = 0;
-        while (lineStart <= text.size())
+        std::vector<std::string> lines(1);
+        for (char ch : text)
         {
-            size_t lineEnd = text.find('\n', lineStart);
-            if (lineEnd == std::string::npos) lineEnd = text.size();
-            std::string line = text.substr(lineStart, lineEnd - lineStart);
+            if (ch == '\n') lines.push_back("");
+            else            lines.back() += ch;
+        }
 
+        float lineY = y;
+        for (const std::string& line : lines)
+        {
             float width = line.size() * 6 * pixel - pixel;
-            float penX = startX;
-            if (align == Align::Center) penX = startX - width / 2;
-            if (align == Align::Right)  penX = startX - width;
+            float penX = x;
+            if (align == Align::Center) penX = x - width / 2;
+            if (align == Align::Right)  penX = x - width;
 
             for (char ch : line)
             {
@@ -112,7 +114,6 @@ namespace Text
             }
 
             lineY -= 10 * pixel;
-            lineStart = lineEnd + 1;
         }
     }
 

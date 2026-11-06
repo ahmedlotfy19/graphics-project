@@ -16,13 +16,10 @@ static std::string currentMusic;
 
 static std::string findFile(const std::string& name)
 {
-    const char* extensions[] = { ".wav", ".mp3", ".flac" };
-    for (const char* ext : extensions)
-    {
-        std::string path = "assets/audio/" + name + ext;
-        if (std::ifstream(path).good()) return path;
-    }
-    std::cerr << "Missing sound: " << name << std::endl;
+    std::string path = "assets/audio/" + name + ".wav";
+    if (std::ifstream(path).good()) return path;
+
+    std::cerr << "Missing sound: " << path << std::endl;
     return "";
 }
 

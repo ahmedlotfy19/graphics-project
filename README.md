@@ -552,7 +552,7 @@ All of these numbers live in `Config.h`.
 
 ## 11. Sound
 
-Files: `assets/audio/<name>.wav` (`.mp3` and `.flac` also work). Names are defined in `src/core/Audio.h`:
+Files: `assets/audio/<name>.wav`. Names are defined in `src/core/Audio.h`:
 
 | Name | When | Played by |
 |---|---|---|
