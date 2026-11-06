@@ -126,7 +126,7 @@ archive/                  old triangle demo (not compiled)
 |---|---|---|
 | **1: Core & UI** | `main.cpp`, `Config.h`, `core/`, `game/` | ✅ Done |
 | **2: Players** | `players/` | 🟨 Placeholder: boxes, walking, card lock/unlock |
-| **3: Enemies & combat** | `enemies/` | 🟨 Placeholder: boxes, walking, basic waves, touching = trade hits |
+| **3: Enemies & combat** | `enemies/` | ✅ Done: Spitter / Bone Roller / Brute models, High/Low attacks, dodging, waves |
 | **4: World & cutscene** | `world/` | 🟨 Placeholder: flat lanes, box base, 4 s placeholder cutscene. Lane hover/select works |
 
 Every placeholder file starts with a comment block saying what the owner must add. Inline `// TODO Member N` comments mark the exact spots.
@@ -409,28 +409,25 @@ Costs are already set to spec in `Config.h`: Melee 10, Ranged 20 (2×), Defense 
 ### Member 3: Enemies & combat (`src/enemies/`)
 
 **Models (`Enemies::draw`)**
-- [ ] **Easy: upper-ranged** zombie (e.g. one that spits or throws things in an arc from above)
-- [ ] **Medium: lower-ranged** zombie (e.g. one that sends something along the ground, or bursting roots/acid from below)
-- [ ] **Hard: melee** zombie (big, armoured or fast brute); looks the most dangerous
-- [ ] Different **shapes and equipment**, not colour. The design should hint at the attack type and difficulty
-- [ ] Walk/run animation, attack animation, red damage tint, `e.height` set correctly
-- [ ] Projectile visuals in `Enemies::drawProjectile`
+- [x] **Easy: Spitter**, a thin hunched zombie whose acid sac swells before it spits. The spit flies at head height (`AttackHeight::High`, so **duck**)
+- [x] **Medium: Bone Roller**, a stocky zombie in overalls with a sack of skulls. It bowls skulls along the ground (`AttackHeight::Low`, so **jump**)
+- [x] **Hard: Brute**, armoured with a spiked shoulder pad, helmet, glowing eyes and a nail club. It runs and hits for 2
+- [x] Walk/run cycles, attack animations, charge-up tells, red damage tint plus a hit flash, fade-in with a dirt burst on spawn
+- [x] Projectile visuals and impact splashes (acid splat, skull shatter)
+- [x] `Enemies::drawModel(r, type, x, groundY, anim, ...)` draws any zombie without a World (for the cutscene)
 
 **Behaviour (`Enemies.cpp`, `Combat.cpp`)**
-- [ ] Move left at normal speed. **Melee runs** (faster)
-- [ ] Attack from the moment they appear, **even with no player in the lane**
-- [ ] Upper-ranged attacks are `AttackHeight::High` (the player must **duck**). Lower-ranged attacks are `AttackHeight::Low` (the player must **jump**)
-- [ ] Damage: 1 per hit, **melee zombie 2** (`ENEMY_DAMAGE`, `HARD_ENEMY_DAMAGE`)
-- [ ] When a player and a zombie touch, **both stop and keep attacking** until one dies
-- [ ] Projectile hits: a zombie projectile vs a player whose pose dodges it → no damage. Protected players (`Players::isProtected`) take no damage, and the Defense player in front absorbs the hits instead
-- [ ] Player projectiles hit zombies (1 dmg), then `alive = false`
-- [ ] Always use `Players::damage` / `Enemies::damage`
-- [ ] Zombies stay in their lane. Movement is horizontal only
+- [x] Move left (Spitter 30 px/s, Roller 26 px/s, Brute 72 px/s), and stop while touching a player
+- [x] Attack from the moment they appear, even with no player in the lane (spit range 440 px, skull range 520 px)
+- [x] Dodging: Ducking avoids High, Jumping avoids Low. Defense players never dodge and absorb hits
+- [x] Damage 1, Brute 2. Melee players hit the zombie they touch once per second (`attackTimer`)
+- [x] Combat moves all projectiles. Player bolts are hit-tested by Member 2's code
+- [x] On death: removed, sound played, coin dropped
 
-**Waves (`Waves.cpp`)**: the logic already follows the spec. Tune or polish it:
-- [ ] Wave 1: ≥3 easy. Wave 2: ≥5 easy + medium. Wave 3: ≥10 easy + medium + hard. Random lanes
-- [ ] A wave ends when its last zombie spawns. The next wave starts only after the field is clear
-- [ ] Tune spawn intervals and speeds so the game is beatable but tense
+**Waves (`Waves.cpp`)**
+- [x] Wave 1: 3 easy. Wave 2: 5 (3 easy + 2 medium). Wave 3: 10 (4 easy + 3 medium + 3 hard). Shuffled, random lanes, never the same lane twice in a row
+- [x] The next wave starts 4 s after the field is clear. Spawn gaps shrink each wave
+- [ ] Balance pass after playtesting with the real environment (speeds and intervals are at the top of `Enemies.cpp`)
 
 ### Member 4: World & cutscene (`src/world/`)
 
@@ -533,7 +530,7 @@ Files: `assets/audio/<name>.wav` (`.mp3` and `.flac` also work). Names are defin
 | `lane_select` | lane toggled | Member 4 (already) |
 | `place` | player placed | Member 2 (already) |
 | `player_attack` | player swings / fires | **Member 2: add** |
-| `enemy_attack` | zombie attacks | **Member 3: add** |
+| `enemy_attack` | zombie spits / bowls / swings | Member 3 (done) |
 | `hit` | someone takes damage | Players/Enemies `damage()` (already) |
 | `player_death`, `enemy_death` | deaths | `damage()` (already) |
 | `coin` | coin collected | Core |

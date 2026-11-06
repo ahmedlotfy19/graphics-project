@@ -1,19 +1,25 @@
 #pragma once
 // ============================================================================
 //  Waves  -  enemy spawning across the 3 waves.     Owner: MEMBER 3
-//  Spec 3.3: wave 1 = 3 easy, wave 2 = 5 easy/medium, wave 3 = 10 mixed.
-//  A wave "ends" when its last enemy spawns; the next wave starts only after
-//  every enemy on screen is dead.
+//  Wave 1 = easy only, wave 2 = easy + medium, wave 3 = easy + medium + hard,
+//  sizes from WAVE_ENEMY_COUNT in Config.h, shuffled, random lanes.
+//  A wave "ends" when its last zombie spawns; the next wave starts only after
+//  every zombie on screen is dead.
 // ============================================================================
+#include "Enemies.h"
+#include <vector>
+
 struct World;
 
 struct WaveState
 {
     int   index = 0;
     int   spawned = 0;
-    float timer = 2.0f;
+    float timer = 2.5f;
     bool  betweenWaves = false;
     bool  finished = false;
+    int   lastLane = -1;
+    std::vector<EnemyType> queue;
 };
 
 namespace Waves
