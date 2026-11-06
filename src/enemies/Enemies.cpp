@@ -409,7 +409,7 @@ namespace Enemies
             if (!e.engaged)
                 e.x -= walkSpeed(e.type) * dt;
 
-            float before = e.attackAnim;
+            bool clubStillUp = e.attackAnim < 0.17f;
             e.attackAnim += dt;
             e.attackTimer -= dt;
 
@@ -417,7 +417,6 @@ namespace Enemies
             {
                 e.attackTimer = attackDelay(e.type);
                 e.attackAnim = 0;
-                before = -1;
 
                 if (e.type != EnemyType::Melee)
                     shoot(w, e);
@@ -425,7 +424,7 @@ namespace Enemies
                     Audio::play(Sfx::EnemyAttack);
             }
 
-            if (e.type == EnemyType::Melee && before < 0.17f && e.attackAnim >= 0.17f)
+            if (e.type == EnemyType::Melee && clubStillUp && e.attackAnim >= 0.17f)
                 e.strikeNow = true;
         }
     }

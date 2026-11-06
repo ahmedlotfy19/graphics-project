@@ -2,9 +2,9 @@
 // ============================================================================
 //  Players  -  the 3 player types.            Owner: MEMBER 2
 //
-//   Melee   : survivor with a fire axe (swings on every attack)
-//   Ranged  : ranger with a crossbow  (fires an animated bolt)
-//   Defense : riot guard with a big shield (never moves, protects players behind it)
+//   Melee   : survivor with a fire axe (swings once per second)
+//   Ranged  : ranger with a crossbow  (fires a bolt every 1.7 s)
+//   Defense : riot guard with a big shield (never moves, takes hits for the players behind it)
 //
 //  Fields marked REQUIRED are read by other members' code - keep their names.
 // ============================================================================
@@ -22,47 +22,40 @@ struct Player
     // ---- REQUIRED (used by Core / Enemies / Combat) ----
     PlayerType type = PlayerType::Melee;
     int   lane = 0;
-    float x = 0.0f;
-    float y = 0.0f;          // height above the lane ground (non-zero while jumping)
+    float x = 0;
+    float y = 0;             // height above the lane ground while jumping
     int   hp = 1, maxHp = 1;
-    float halfWidth = 22.0f;
-    float height = 90.0f;
+    float halfWidth = 22;
+    float height = 90;
     Pose  pose = Pose::Normal;
-    bool  engaged = false;
+    bool  engaged = false;   // touching a zombie, so it stops walking
     bool  alive = true;
+    bool  strikeNow = false; // melee: the axe lands this frame, Combat deals the damage
 
     // ---- Member 2's own fields ----
-    float attackTimer = 0.0f;   // used by Combat (damage cadence)
-    float poseTimer = 0.0f;     // time spent in the current jump / minimum duck time left
-    float anim = 0.0f;          // seconds alive, drives walking / idle animation
-    float swingT = 0.0f;        // melee attack cycle, 0..kMeleePeriod
-    float fireT = 0.0f;         // ranged: seconds until the next shot
-    float recoil = 0.0f;        // ranged: crossbow kick, counts down from 1
-    float hitFlash = 0.0f;      // brief extra red tint after taking a hit
-    float lastAttackTimer = 0.0f;
+    float anim = 0;          // seconds alive, drives the walk and idle animations
+    float poseTime = 0;      // seconds since the current jump or duck started
+    float attackTime = 0;    // seconds since the last axe swing or crossbow shot
+    float hitFlash = 0;      // extra red flash for a moment after being hit
 };
 
 namespace Players
 {
-    int  maxHpFor(PlayerType t);
     void spawn(World& w, PlayerType t, int lane);
     void update(World& w, float dt);
     void draw(Renderer2D& r, const World& w, const Player& p);
     void drawProjectile(Renderer2D& r, const Projectile& pr);
 
-    // Always use this to hurt a player. Handles sound + death, and redirects the
-    // damage to the Defense player in front when the target is protected.
+    // Always use this to hurt a player. If a Defense player stands in front
+    // (to the right, same lane), the Defense player takes the hit instead.
     void damage(World& w, Player& p, int amount);
 
-    // True while a living Defense player in the same lane is to the RIGHT of p.
-    bool isProtected(const World& w, const Player& p);
-
-    // Draws one model without needing a World (used by the cards and the cutscene).
+    // Draws one model without a World (used by the cards and the cutscene).
     // (x, groundY) = point between the feet. The model faces right.
-    //   swing   : -1 = no attack animation, 0..1 = progress of one attack
-    //   damage  : 0..1 red tint (use 1 - hp/maxHp)
-    //   walking : false = idle breathing pose
+    //   swing   : -1 = no attack, 0..1 = progress of one attack
+    //   damage  : 0..1 red tint
+    //   walking : false = idle pose
     void drawModel(Renderer2D& r, PlayerType t, float x, float groundY, float anim,
-                   Pose pose = Pose::Normal, float damage = 0.0f,
-                   float swing = -1.0f, bool walking = true);
+                   Pose pose = Pose::Normal, float damage = 0,
+                   float swing = -1, bool walking = true);
 }

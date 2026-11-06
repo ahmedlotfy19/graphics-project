@@ -16,7 +16,7 @@ static bool dodged(const Player& p, AttackHeight height)
     return false;
 }
 
-static void bruteAttacks(World& w)
+static void bruteHits(World& w)
 {
     for (Enemy& e : w.enemies)
     {
@@ -33,14 +33,12 @@ static void bruteAttacks(World& w)
     }
 }
 
-static void meleePlayerAttacks(World& w, float dt)
+static void axeHits(World& w)
 {
     for (Player& p : w.players)
     {
-        if (!p.alive || p.type != PlayerType::Melee) continue;
-
-        p.attackTimer -= dt;
-        if (p.attackTimer > 0) continue;
+        if (!p.strikeNow) continue;
+        p.strikeNow = false;
 
         Enemy* target = nullptr;
         for (Enemy& e : w.enemies)
@@ -48,55 +46,75 @@ static void meleePlayerAttacks(World& w, float dt)
                 target = &e;
 
         if (target)
-        {
             Enemies::damage(w, *target, PLAYER_DAMAGE);
-            p.attackTimer = 1.0f;
-        }
-        else
+    }
+}
+
+static void boltHits(World& w, Projectile& bolt)
+{
+    for (Enemy& e : w.enemies)
+    {
+        if (!e.alive || e.lane != bolt.lane) continue;
+
+        float ground = laneGroundY(e.lane);
+        bool closeX = fabs(bolt.x - e.x) < e.halfWidth + 8;
+        bool closeY = bolt.y >= ground - 4 && bolt.y <= ground + e.height + 4;
+
+        if (closeX && closeY)
         {
-            p.attackTimer = 0;
+            Enemies::damage(w, e, bolt.damage);
+            bolt.alive = false;
+            return;
         }
     }
 }
 
-static void moveProjectiles(World& w, float dt)
+static void spitAndSkullHits(World& w, Projectile& pr)
+{
+    if (pr.kind == SPIT)
+        pr.y = laneGroundY(pr.lane) + 76 + 3 * sin(pr.age * 14);
+
+    float range = pr.kind == SPIT ? 300.0f : 520.0f;
+    if (pr.age * fabs(pr.vx) > range || pr.x < HOME_BASE_RIGHT)
+    {
+        pr.alive = false;
+        return;
+    }
+
+    Player* target = nullptr;
+    for (Player& p : w.players)
+    {
+        if (!p.alive || p.lane != pr.lane) continue;
+        if (fabs(p.x - pr.x) > p.halfWidth + 6) continue;
+        if (dodged(p, pr.height)) continue;
+        if (!target || p.x > target->x) target = &p;
+    }
+
+    if (target)
+    {
+        Players::damage(w, *target, pr.damage);
+        pr.alive = false;
+    }
+}
+
+static void projectileHits(World& w, float dt)
 {
     for (Projectile& pr : w.projectiles)
     {
         if (!pr.alive) continue;
+
         pr.age += dt;
         pr.x += pr.vx * dt;
         pr.y += pr.vy * dt;
 
         if (pr.x < -50 || pr.x > VIRTUAL_W + 50)
-            pr.alive = false;
-
-        if (pr.fromPlayer) continue;
-
-        if (pr.kind == SPIT)
-            pr.y = laneGroundY(pr.lane) + 76 + 3 * sin(pr.age * 14);
-
-        float range = pr.kind == SPIT ? 300.0f : 520.0f;
-        if (pr.age * fabs(pr.vx) > range || pr.x < HOME_BASE_RIGHT)
         {
             pr.alive = false;
             continue;
         }
 
-        Player* target = nullptr;
-        for (Player& p : w.players)
-        {
-            if (!p.alive || p.lane != pr.lane) continue;
-            if (fabs(p.x - pr.x) > p.halfWidth + 6) continue;
-            if (dodged(p, pr.height)) continue;
-            if (!target || p.x > target->x) target = &p;
-        }
-
-        if (target)
-        {
-            Players::damage(w, *target, pr.damage);
-            pr.alive = false;
-        }
+        if (pr.fromPlayer) boltHits(w, pr);
+        else               spitAndSkullHits(w, pr);
     }
 }
 
@@ -104,8 +122,8 @@ namespace Combat
 {
     void update(World& w, float dt)
     {
-        bruteAttacks(w);
-        meleePlayerAttacks(w, dt);
-        moveProjectiles(w, dt);
+        bruteHits(w);
+        axeHits(w);
+        projectileHits(w, dt);
     }
 }

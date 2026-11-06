@@ -9,7 +9,6 @@
 #include "../world/Environment.h"
 #include "../world/Cutscene.h"
 
-#include <algorithm>
 #include <string>
 
 const float BUTTON_W = 260;
@@ -119,18 +118,19 @@ void Game::updateGame(float dt)
     checkWinLose();
 }
 
-template <typename T>
-static void eraseDead(std::vector<T>& list)
-{
-    list.erase(std::remove_if(list.begin(), list.end(), [](const T& item) { return !item.alive; }), list.end());
-}
-
 void Game::removeDead()
 {
-    eraseDead(world.players);
-    eraseDead(world.enemies);
-    eraseDead(world.projectiles);
-    eraseDead(world.collectibles);
+    for (int i = (int)world.players.size() - 1; i >= 0; i--)
+        if (!world.players[i].alive) world.players.erase(world.players.begin() + i);
+
+    for (int i = (int)world.enemies.size() - 1; i >= 0; i--)
+        if (!world.enemies[i].alive) world.enemies.erase(world.enemies.begin() + i);
+
+    for (int i = (int)world.projectiles.size() - 1; i >= 0; i--)
+        if (!world.projectiles[i].alive) world.projectiles.erase(world.projectiles.begin() + i);
+
+    for (int i = (int)world.collectibles.size() - 1; i >= 0; i--)
+        if (!world.collectibles[i].alive) world.collectibles.erase(world.collectibles.begin() + i);
 }
 
 void Game::checkWinLose()

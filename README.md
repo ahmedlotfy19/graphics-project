@@ -199,6 +199,17 @@ check win / lose      (Member 1)
 ```
 Cards update before lanes on purpose. When a card is clicked it calls `Input::consumeClick()`, so the lane under the cursor doesn't toggle as well.
 
+**How attacks work:** `Players.cpp` and `Enemies.cpp` only decide **when** an attack happens. `Combat.cpp` decides **who gets hit**.
+
+| Attack | Started by | What Combat does |
+|---|---|---|
+| Melee axe | `Players::update` sets `p.strikeNow` every 1 s | hits the nearest zombie touching that player |
+| Brute club | `Enemies::update` sets `e.strikeNow` when the club comes down | hits the nearest player touching the Brute for 2 |
+| Crossbow bolt | `Players::update` adds a projectile every 1.7 s | moves it and hits the first zombie it reaches |
+| Spit / skull | `Enemies::update` adds a projectile | moves it and hits the front player, unless they duck (spit) or jump (skull) |
+
+Every hit goes through `Players::damage` or `Enemies::damage`, which handle sound, death, coin drops and the Defense rule.
+
 **Draw order** (back to front):
 ```
 Environment::drawBackground → Lanes::draw → Environment::drawHomeBase → coins
@@ -385,8 +396,7 @@ See [§11](#11-sound) for the list.
 ### Gameplay helpers other members provide
 ```cpp
 Players::spawn(w, PlayerType::Ranged, lane);
-Players::damage(w, player, amount);      // ALWAYS use this to hurt a player (sound + death handled)
-Players::isProtected(w, player);         // defense rule
+Players::damage(w, player, amount);      // ALWAYS use this to hurt a player (sound, death and the Defense rule handled)
 Enemies::spawn(w, EnemyType::Melee, lane);
 Enemies::damage(w, enemy, amount);       // ALWAYS use this to hurt a zombie (sound + death + coin drop)
 Collectibles::spawn(w, lane, x, COIN_DROP_VALUE);   // already called by Enemies::damage on death
@@ -419,7 +429,7 @@ Each item is a spec requirement.
 - [x] **Jump** on W/Up and **duck** on S/Down for every player in a **selected** lane (`w.lanes.selected[p.lane]`). Set `p.pose` (Jumping/Ducking) and `p.y` (jump height). Defense players ignore this
 - [x] All players deal `PLAYER_DAMAGE` (1) per attack
 - [x] At the right edge they leave the field and are removed
-- [x] `Players::isProtected`: true while a living Defense player in the same lane is **to the right of** (in front of) this player
+- [x] Defense rule: `Players::damage` passes the hit to a living Defense player standing **to the right of** (in front of) the target in the same lane
 
 **Cards (`PlayerCards.cpp`)**
 - [x] Draw a **mini version of each model** on its card, with the name and cost
@@ -444,8 +454,8 @@ Costs are already set to spec in `Config.h`: Melee 10, Ranged 20 (2×), Defense 
 - [x] Move left (Spitter 30 px/s, Roller 26 px/s, Brute 72 px/s), and stop while touching a player
 - [x] Attack from the moment they appear, even with no player in the lane (spit every 5 s with 300 px range, skull every 3.6 s with 520 px range)
 - [x] Dodging: Ducking avoids High, Jumping avoids Low. Defense players never dodge and absorb hits
-- [x] Damage 1, Brute 2. Melee players hit the zombie they touch once per second (`attackTimer`)
-- [x] Combat moves all projectiles. Player bolts are hit-tested by Member 2's code
+- [x] Damage 1, Brute 2. Melee players set `strikeNow` once per second when the axe comes down, and Combat hits the zombie they touch
+- [x] Combat moves all projectiles and checks every hit: axe, club, bolts, spit and skulls
 - [x] On death: removed, sound played, coin dropped
 
 **Waves (`Waves.cpp`)**
@@ -493,12 +503,10 @@ Agree on these in the group chat early. Most are already wired up.
 | Who | Does what |
 |---|---|
 | Member 2 | sets `Player::pose` (`Normal` / `Jumping` / `Ducking`) and `Player::y` |
-| Member 2 | implements `Players::isProtected(w, p)` and `Players::damage` |
+| Member 2 | implements `Players::damage` (redirects the hit to a Defense player in front) and sets `Player::strikeNow` when the axe lands |
 | Member 2 | spawns player projectiles into `w.projectiles` with `fromPlayer = true` |
 | Member 3 | `Combat::update` moves **all** projectiles, checks hits and calls `Players::damage` / `Enemies::damage` |
 | Member 3 | dodge rule: `High` misses a `Ducking` player, `Low` misses a `Jumping` player, `Mid` always hits |
-
-If you'd rather move player projectiles inside `Players::update`, that's fine. Agree on it so they don't move twice.
 
 ### Member 2 ↔ Member 4: placement & lane selection
 Current flow (spec section 3.2): **click lane(s) to select them, then click an unlocked card**. One player of that type is placed at the left end of **each selected lane** you can afford.

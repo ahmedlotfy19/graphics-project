@@ -18,7 +18,6 @@ struct World;
 struct CardState
 {
     int hovered = -1;
-    int selected = -1;
     float warnUntil = -1.0f;   // "select a lane first" message is shown until w.time reaches this
 };
 
