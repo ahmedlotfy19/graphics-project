@@ -426,7 +426,7 @@ namespace Players
         float ground = laneGroundY(p.lane);
 
         float shadow = 1 - p.y / 90;
-        float shadowWidth = p.type == PlayerType::Defense ? 32 : 22;
+        float shadowWidth = p.type == PlayerType::Defense ? 32.0f : 22.0f;
         r.ellipse(p.x, ground - 1, shadowWidth * shadow, 5 * shadow, Color(0, 0, 0, 0.3f), 20);
 
         float damage = 1.0f - (float)p.hp / p.maxHp;
