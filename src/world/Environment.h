@@ -1,7 +1,7 @@
 #pragma once
 // ============================================================================
 //  Environment  -  background, lanes ground, home base, 5+ props.  Owner: MEMBER 4
-//  Placeholder right now. Draw order used by Game:
+//  Draw order used by Game:
 //      drawBackground -> Lanes::draw -> drawHomeBase -> (characters...) -> drawForeground
 // ============================================================================
 class Renderer2D;

@@ -4,8 +4,8 @@ A 2D side-view zombie lane-defense game in C++ and modern OpenGL 3.3.
 Survivors defend their base against three waves of zombies coming across four lanes.
 
 **Current state:** the whole game loop already runs: main menu → cutscene → gameplay → pause → win/lose, with sound.
-Members 1, 2 and 3 are finished. Member 4's files (`src/world/`) are still **working placeholders** (flat lanes, box base, short placeholder cutscene).
-Replace your placeholders with the real thing. You should never need to edit another member's files.
+All four parts are done: core & UI, players, zombies & waves, and the world & cutscene.
+Each member only edits the files they own.
 
 ---
 
@@ -126,9 +126,9 @@ tools/                    make_placeholder_sounds.py
 | **1: Core & UI** | `main.cpp`, `Config.h`, `core/`, `game/` | ✅ Done |
 | **2: Players** | `players/` | ✅ Done: Melee / Ranged / Defense models, jump and duck, cards |
 | **3: Enemies & combat** | `enemies/` | ✅ Done: Spitter / Bone Roller / Brute models, High/Low attacks, dodging, waves |
-| **4: World & cutscene** | `world/` | 🟨 Placeholder: flat lanes, box base, 4 s placeholder cutscene. Lane hover/select works |
+| **4: World & cutscene** | `world/` | ✅ Done: night farmland lanes, Safe House base, 10 props, 17 s cutscene |
 
-Every placeholder file starts with a comment block saying what the owner must add. Inline `// TODO Member N` comments mark the exact spots.
+Each file of Members 2, 3 and 4 starts with a comment block listing what it covers.
 
 ### Ownership rules
 * **Only edit files you own.** If you need a change somewhere else, ask the owner.
@@ -368,7 +368,7 @@ Waves::currentWave(w), Waves::allSpawned(w)
 
 ## 8. Task list per member
 
-Each item is a spec requirement. Tick them off in your placeholder file's header.
+Each item is a spec requirement.
 
 ### Member 2: Players (`src/players/`)
 
@@ -426,25 +426,25 @@ Costs are already set to spec in `Config.h`: Melee 10, Ranged 20 (2×), Defense 
 ### Member 4: World & cutscene (`src/world/`)
 
 **Environment (`Environment.cpp`)**
-- [ ] Themed background: night sky, ruined city or fields, whatever fits the story
-- [ ] Lane ground that reads clearly as 4 separate lanes
-- [ ] **Home base** at `x ∈ [0, 150]`: detailed (fortified house, bunker, barricaded shop...) and **clearly visible against the environment**, not just a recolour
-- [ ] **At least 5 environment props** that fit the theme and sit naturally in the scene: wrecked cars, barricades, streetlights, sandbags, barrels, fences, dead trees, graves...
-- [ ] `drawForeground` for anything that should be drawn over characters (fog, rain, flickering light)
-- [ ] Animate a little (flickering lamp, moving clouds, fire) using the `time` parameter
+- [x] Themed background: night sky, ruined city or fields, whatever fits the story
+- [x] Lane ground that reads clearly as 4 separate lanes
+- [x] **Home base** at `x ∈ [0, 150]`: detailed (fortified house, bunker, barricaded shop...) and **clearly visible against the environment**, not just a recolour
+- [x] **At least 5 environment props** that fit the theme and sit naturally in the scene: wrecked cars, barricades, streetlights, sandbags, barrels, fences, dead trees, graves...
+- [x] `drawForeground` for anything that should be drawn over characters (fog, rain, flickering light)
+- [x] Animate a little (flickering lamp, moving clouds, fire) using the `time` parameter
 
 **Lanes (`Lanes.cpp`)**: the logic already follows the spec. Polish the look:
-- [ ] Hover highlights the **entire lane**
-- [ ] Click toggles selected/deselected, multiple lanes at once (done). Make "selected" look clearly different from "hovered"
+- [x] Hover highlights the **entire lane**
+- [x] Click toggles selected/deselected, multiple lanes at once (done). Make "selected" look clearly different from "hovered"
 
 **Cutscene (`Cutscene.cpp`)**
-- [ ] **10–20 s** long (`kDuration`)
-- [ ] Shows **at least one player and one zombie, animated and interacting**
-- [ ] Establishes **what is being defended and why** (the home base and who is inside)
-- [ ] A short **dialogue** between the survivors and the zombie(s), with subtitles via `Text::drawShadowed`. It **must not be text only**
-- [ ] Logically leads into the gameplay. The theme, characters and base should match what the player sees next
-- [ ] Reuse Member 2's and 3's model drawing functions so the characters look identical (see [§9](#9-interfaces-between-members))
-- [ ] Use `setAlpha` and `fullscreen` for fades and camera-like transitions
+- [x] **10–20 s** long (`DURATION`, 17 s)
+- [x] Shows **at least one player and one zombie, animated and interacting**
+- [x] Establishes **what is being defended and why** (the home base and who is inside)
+- [x] A short **dialogue** between the survivors and the zombie(s), with subtitles via `Text::drawShadowed`. It **must not be text only**
+- [x] Logically leads into the gameplay. The theme, characters and base should match what the player sees next
+- [x] Reuse Member 2's and 3's model drawing functions so the characters look identical (see [§9](#9-interfaces-between-members))
+- [x] Use `setAlpha` and `fullscreen` for fades and camera-like transitions
 
 ### Member 1: Core & UI (done; keeps maintaining)
 - [x] Window, OpenGL 3.3 core, main loop, renderer, text, input
@@ -502,7 +502,7 @@ Your `draw()` can call it, and Member 4 calls it from the cutscene.
 | **Attack** | close | projectile | none | from **above** (duck) | from **below** (jump) | close |
 | **Cost / unlock** | 10 | 20 | 30 | | | |
 
-* Start with **30 coins**. Each zombie drops a coin worth **20** (`COIN_DROP_VALUE`) that bounces onto the lane and is, collected when a player touches it.
+* Start with **30 coins**. Each zombie drops a coin worth **20** (`COIN_DROP_VALUE`) that bounces onto the lane and is collected when a player touches it.
 * A card is unlocked while `coins >= cost` and **re-locks** if coins drop below.
 * **Win:** all 3 waves spawned and every zombie dead. **Lose:** any zombie reaches the home base, and then everything freezes.
 * Waves: 3 → 5 → 10 zombies.
