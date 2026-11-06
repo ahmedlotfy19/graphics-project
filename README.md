@@ -9,6 +9,36 @@ Each member only edits the files they own.
 
 ---
 
+## ▶ Get the final version (start here for the video)
+
+The finished game is on the **`main`** branch.
+
+**You never cloned the repo:**
+```
+git clone https://github.com/ahmedlotfy19/graphics-project.git
+cd graphics-project
+```
+
+**You already have it:** throw away any local test changes and pull the final version:
+```
+git checkout main
+git pull
+```
+If `git pull` complains about local changes you don't need, run `git stash` first and then `git pull` again.
+
+**Check you have the right version:** `git log --oneline -1` should show
+`Member 4: night farmland lanes, Safe House base, props, fog, lane highlight and intro cutscene`,
+or a newer commit.
+
+**Run it:**
+1. Open `Template.sln` in **Visual Studio 2022 or 2026**, which needs the "Desktop development with C++" workload.
+2. Set the toolbar to **Release** and **x64**. Release runs smoother for recording. Debug also works.
+3. Press **Ctrl+F5** to run without the debugger. The main menu with "ZOMBIE LAND" should appear.
+
+Then follow the [video guide in §13](#13-submission--video).
+
+---
+
 ## Table of contents
 1. [First-time setup](#1-first-time-setup)
 2. [Git workflow](#2-git-workflow)
@@ -32,7 +62,7 @@ Each member only edits the files they own.
 1. Install **Visual Studio 2022** (or newer) with the **"Desktop development with C++"** workload.
 2. Clone the repo:
    ```
-   git clone <repo-url>
+   git clone https://github.com/ahmedlotfy19/graphics-project.git
    ```
 3. Open `Template.sln`.
 4. In the toolbar, set the configuration to **Debug** and the platform to **x64**. ⚠️ Win32 is *not* configured and will not build.
@@ -552,15 +582,79 @@ The Sound Settings menu (volume ±10%, mute) affects everything.
 **Zip (Member 1):** `[Team name]-[Member name].zip` containing the source and project files (`src/`, `include/`, `External/`, `glm/`, `lib/`, `assets/`, `Template.sln`, `Template.vcxproj*`).
 Before zipping, test it from a **fresh clone** on another machine if possible.
 
-**Video (Member 4 edits, 2–5 minutes, with voiceover):**
-1. University name and logo
-2. Course name and semester (DMET 502 Computer Graphics, Winter 2026)
-3. Project name (ZOMBIE LAND)
-4. Students' names
-5. Gameplay: describe the game, its aim and how to play. Show the cutscene, all 3 player and zombie types, jump/duck, unlocking cards, all 3 waves, winning and losing, and all menus including sound settings
-6. Thank you
+### Video rules (from the spec)
+* **2 to 5 minutes** long, with a **voiceover** explaining what the game is, its aim, and how to play.
+* It must follow this **exact order**:
+  1. University name and logo
+  2. Course name and semester
+  3. Project name
+  4. Students' names
+  5. The rest of the video (gameplay)
+  6. Thank you
+* It may be published online, so make it clean: no desktop clutter, no notifications, no long silences.
+* Submit it as a **separate link** in the same form as the zip, and give the staff access to it.
 
-The video may be published online, so make it polished.
+### Recording setup
+* **Recorder:** OBS Studio (free) gives the best quality. The Xbox Game Bar built into Windows also works: press **Win + G**, then the record button, or **Win + Alt + R** to start and stop.
+* **Window:** maximise the game window. It scales to any size and keeps the 16:9 picture. Record at 1920×1080 or 1280×720.
+* **Sound:** record the game audio. The music and sound effects are part of the sound bonus, so the graders should hear them. Lower the game volume in Sound Settings if it covers the voiceover.
+* **Build:** use **Release | x64** for smooth frames.
+* Turn on Windows **Focus assist / Do not disturb** so no pop-ups appear.
+* **Recommended:** record the gameplay first without talking, then record the voiceover over it in an editor (CapCut, Clipchamp, DaVinci Resolve, Shotcut). It's much easier than talking while playing.
+
+### Shot list (about 4 minutes)
+
+| # | Time | Show on screen | What to do in the game |
+|---|---|---|---|
+| 1 | 0:00–0:05 | **GUC name and logo** | Title card made in the editor |
+| 2 | 0:05–0:10 | **DMET 502 Computer Graphics, Winter 2026** | Title card |
+| 3 | 0:10–0:15 | **ZOMBIE LAND** | Title card, or the game's main menu |
+| 4 | 0:15–0:25 | **Students' names** | Title card |
+| 5 | 0:25–0:40 | Main menu | Hover the buttons, open **SOUND SETTINGS**, press **+ VOL** and **- VOL**, toggle **MUTE**, then **BACK** |
+| 6 | 0:40–0:58 | **Cutscene (do NOT skip it)** | Click **START GAME** and let the 17 s intro play to the end |
+| 7 | 0:58–1:20 | Wave 1, how to play | Hover a lane (it lights up), click 2 lanes to **select** them (yellow outline and arrow), then click the **MELEE** card. A melee player appears in each selected lane. Show that **RANGED** and **DEFENSE** are **grey and locked** |
+| 8 | 1:20–1:45 | Wave 1, fighting | The Spitter spits at head height. Select its lane and hold **S / Down** to **duck** under it. Kill zombies, show a coin **dropping, bouncing and being collected**, and show the coin counter going up |
+| 9 | 1:45–2:10 | Unlocking cards | Once coins ≥ 20, **RANGED** turns colourful. Place one and show its crossbow bolts. At ≥ 30, place a **DEFENSE** player and show that it doesn't move and **protects the players behind it** |
+| 10 | 2:10–2:40 | Wave 2 | **Bone Rollers** roll skulls along the ground. Select the lane and press **W / Up** to **jump** over them |
+| 11 | 2:40–3:10 | Wave 3 | The armoured **Brute** runs fast and hits for 2. Show the **red damage tint** on hurt characters and the health bars |
+| 12 | 3:10–3:20 | Pause menu | Press **Esc**, show **CONTINUE / RESTART / MAIN MENU**, press CONTINUE |
+| 13 | 3:20–3:30 | **Win** | Clear wave 3 and show the win screen with **RESTART / MAIN MENU** |
+| 14 | 3:30–3:50 | **Lose** | Press RESTART, skip the cutscene with **SPACE**, place **nobody**, and wait about 40 s until a zombie reaches the Safe House. Speed this part up in the editor. Show the lose screen, where everything freezes |
+| 15 | 3:50–3:58 | Main menu → EXIT | Click **MAIN MENU**, then **EXIT** to show the game closes |
+| 16 | 3:58–4:05 | **Thank you** | Title card |
+
+**Tips for a clean run**
+* **Easy win:** in wave 1, put a melee player in every lane that has a zombie. Spend new coins on Ranged players. Put a Defense player in front once you have 30.
+* **Lane selection:** you can select several lanes at once, so one card click places a player in **each** selected lane, as long as you have enough coins.
+* **Jump and duck:** these only work for players in **selected** lanes. Defense players never jump or duck.
+* **Re-takes:** use Pause → RESTART to try a part again. Skip the cutscene with **SPACE** after you've recorded it once.
+
+### Voiceover script (edit freely)
+
+> **Intro (over the title cards):** "This is Zombie Land, our project for DMET 502 Computer Graphics at the German University in Cairo, Winter 2026."
+>
+> **Menu:** "The game starts at the main menu. From here you can start the game, open the sound settings to raise, lower or mute the volume, or exit."
+>
+> **Cutscene:** "Starting the game plays an animated cutscene. The last safe house in town shelters twelve survivors and the town's last food and medicine. A Spitter zombie attacks, the survivor ducks its acid and fights back, but a Brute warns that thousands more are coming, so the survivors run to the lanes to defend the house."
+>
+> **Aim:** "The aim is to protect the Safe House on the left. Zombies come from the right in three waves. If a single zombie reaches the house, you lose. Survive all three waves to win."
+>
+> **How to play:** "Click a lane to select it. You can select several. Then click a card to place a survivor at the start of each selected lane. Melee survivors fight up close with an axe, Ranged survivors shoot crossbow bolts, and Defense survivors hold their position and protect everyone behind them. Every survivor except the defender walks forward and attacks automatically."
+>
+> **Coins:** "Placing survivors costs coins. Every zombie you kill drops a coin that bounces onto the lane, and walking into it collects it. Cards you can't afford stay grey and locked, and unlock as soon as you have enough coins."
+>
+> **Zombies:** "There are three zombies. The Spitter spits acid at head height, so you press S or Down to duck. The Bone Roller bowls skulls along the ground, so you press W or Up to jump. The armoured Brute runs fast and hits twice as hard. Jumping and ducking apply to every survivor in the selected lanes."
+>
+> **Menus:** "Escape pauses the game, where you can continue, restart or return to the main menu. At the end, the win or lose screen lets you restart or go back to the menu."
+>
+> **Outro:** "Thank you for watching."
+
+### Before you upload
+- [ ] Length is between 2 and 5 minutes
+- [ ] The order is logo → course → project name → names → gameplay → thank you
+- [ ] The video shows the cutscene, all 3 survivors, all 3 zombies, jump, duck, locked and unlocked cards, coins, all 3 waves, pause, win, lose, sound settings and exit
+- [ ] The voiceover is clear and the game sound is audible
+- [ ] The drive link is shared so that **anyone with the link can view**
 
 ---
 
