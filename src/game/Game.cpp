@@ -11,7 +11,7 @@
 
 #include <string>
 
-const float BUTTON_W = 260;
+const float BUTTON_W = 310;
 const float BUTTON_H = 56;
 const float CENTER_X = VIRTUAL_W / 2.0f;
 
@@ -58,8 +58,6 @@ void Game::newGame(bool showCutscene)
 
 void Game::frame(float dt)
 {
-    menuTime += dt;
-
     switch (state)
     {
     case GameState::MainMenu:
@@ -204,9 +202,7 @@ void Game::drawHUD()
 
 void Game::menuBackground()
 {
-    Environment::drawBackground(*r, menuTime);
-    Environment::drawHomeBase(*r, menuTime);
-    r->fullscreen(Color(0.03f, 0.02f, 0.03f, 0.72f));
+    r->fullscreen(Colors::rgb(24, 18, 22));
 }
 
 void Game::mainMenu()

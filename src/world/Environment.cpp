@@ -102,37 +102,6 @@ static void brokenFence(Renderer2D& r, float x, float y)
     r.line({ x - 2, y + 18 }, { x + 30, y + 22 }, 3, rgb(76, 56, 38));
 }
 
-static void drawSky(Renderer2D& r, float time)
-{
-    r.rectGradient(0, FIELD_TOP, (float)VIRTUAL_W, VIRTUAL_H - FIELD_TOP, rgb(46, 34, 62), rgb(14, 12, 28));
-
-    for (int i = 0; i < 40; i++)
-    {
-        float x = std::fmod(i * 197.0f, (float)VIRTUAL_W);
-        float y = FIELD_TOP + 30 + std::fmod(i * 53.0f, 90.0f);
-        float twinkle = 0.5f + 0.5f * std::sin(time * 2 + i);
-        r.circle(x, y, 1.2f, Color(1, 1, 1, 0.3f + 0.5f * twinkle), 6);
-    }
-
-    r.circle(1100, 670, 30, rgb(255, 250, 220, 40), 32);
-    r.circle(1100, 670, 22, rgb(236, 232, 210), 32);
-    r.circle(1093, 676, 5, rgb(210, 206, 186), 12);
-    r.circle(1108, 664, 3, rgb(210, 206, 186), 10);
-
-    for (int i = 0; i < 3; i++)
-    {
-        float x = std::fmod(i * 450 + time * 12, (float)VIRTUAL_W + 300) - 150;
-        r.ellipse(x, 690 - i * 18, 90, 10, rgb(70, 60, 90, 90), 20);
-    }
-
-    for (int i = 0; i < 16; i++)
-    {
-        float w = 50 + std::fmod(i * 37.0f, 40.0f);
-        float h = 20 + std::fmod(i * 23.0f, 40.0f);
-        r.rect(i * 82.0f, FIELD_TOP, w, h, rgb(22, 18, 30));
-    }
-}
-
 static void drawLaneGround(Renderer2D& r, int lane)
 {
     float y = laneBottomY(lane);
@@ -184,8 +153,6 @@ namespace Environment
 {
     void drawBackground(Renderer2D& r, float time)
     {
-        drawSky(r, time);
-
         r.rect(0, 0, (float)VIRTUAL_W, FIELD_BOTTOM, rgb(40, 32, 26));
 
         for (int lane = 0; lane < NUM_LANES; lane++)

@@ -33,5 +33,4 @@ private:
     Renderer2D* r = nullptr;
     World world;
     GameState state = GameState::MainMenu;
-    float menuTime = 0;
 };
