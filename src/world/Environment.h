@@ -8,7 +8,7 @@ class Renderer2D;
 
 namespace Environment
 {
-    void drawBackground(Renderer2D& r, float time);
+    void drawBackground(Renderer2D& r);
     void drawHomeBase(Renderer2D& r, float time);
     void drawForeground(Renderer2D& r, float time);
 }

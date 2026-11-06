@@ -49,33 +49,6 @@ static void wreckedCar(Renderer2D& r, float x, float y)
     r.circle(x + 8, y + 15, 2, rust, 8);
 }
 
-static void fireBarrel(Renderer2D& r, float x, float y, float time)
-{
-    r.roundedRect(x - 10, y, 20, 26, 3, rgb(70, 82, 74));
-    r.rect(x - 10, y + 6, 20, 2, rgb(46, 54, 48));
-    r.rect(x - 10, y + 18, 20, 2, rgb(46, 54, 48));
-
-    float f = std::sin(time * 9 + x) * 2;
-    r.circle(x, y + 32, 16, rgb(255, 150, 40, 40), 18);
-    r.triangle({ x - 9, y + 26 }, { x + 9, y + 26 }, { x + f, y + 44 }, rgb(240, 110, 30));
-    r.triangle({ x - 5, y + 26 }, { x + 6, y + 26 }, { x - f, y + 38 }, rgb(255, 210, 80));
-}
-
-static void streetLamp(Renderer2D& r, float x, float y, float time)
-{
-    r.rect(x - 2, y, 4, 38, rgb(50, 52, 58));
-    r.rect(x - 2, y + 36, 14, 3, rgb(50, 52, 58));
-    r.rect(x + 7, y + 32, 9, 4, rgb(40, 42, 46));
-
-    bool on = std::sin(time * 13) + std::sin(time * 3.1f) > -1.2f;
-    if (on)
-    {
-        r.circle(x + 11, y + 31, 10, rgb(255, 235, 150, 50), 16);
-        r.circle(x + 11, y + 31, 3, rgb(255, 240, 170), 10);
-        r.ellipse(x + 11, y, 22, 5, rgb(255, 235, 150, 35), 16);
-    }
-}
-
 static void sandbags(Renderer2D& r, float x, float y)
 {
     Color bag = rgb(150, 132, 92);
@@ -132,33 +105,31 @@ static void drawLaneGround(Renderer2D& r, int lane)
     r.rect(0, y, w, 3, rgb(30, 34, 22));
 }
 
-static void drawProps(Renderer2D& r, float time)
+static void drawProps(Renderer2D& r)
 {
     deadTree(r, 470, propBase(0));
     grave(r, 820, propBase(0));
     grave(r, 850, propBase(0) + 2);
 
     wreckedCar(r, 640, propBase(1));
-    fireBarrel(r, 1020, propBase(1), time);
 
-    streetLamp(r, 380, propBase(2), time);
+    deadTree(r, 380, propBase(2));
     brokenFence(r, 900, propBase(2));
 
     sandbags(r, 560, propBase(3));
-    fireBarrel(r, 760, propBase(3), time);
     deadTree(r, 1110, propBase(3));
 }
 
 namespace Environment
 {
-    void drawBackground(Renderer2D& r, float time)
+    void drawBackground(Renderer2D& r)
     {
         r.rect(0, 0, (float)VIRTUAL_W, FIELD_BOTTOM, rgb(40, 32, 26));
 
         for (int lane = 0; lane < NUM_LANES; lane++)
             drawLaneGround(r, lane);
 
-        drawProps(r, time);
+        drawProps(r);
     }
 
     void drawHomeBase(Renderer2D& r, float time)

@@ -156,7 +156,7 @@ tools/                    make_placeholder_sounds.py
 | **1: Core & UI** | `main.cpp`, `Config.h`, `core/`, `game/` | ✅ Done |
 | **2: Players** | `players/` | ✅ Done: Melee / Ranged / Defense models, jump and duck, cards |
 | **3: Enemies & combat** | `enemies/` | ✅ Done: Spitter / Bone Roller / Brute models, High/Low attacks, dodging, waves |
-| **4: World & cutscene** | `world/` | ✅ Done: night farmland lanes, Safe House base, 10 props, 17 s cutscene |
+| **4: World & cutscene** | `world/` | ✅ Done: night farmland lanes, Safe House base, 7 simple props (car, dead trees, graves, sandbags, fence), 17 s cutscene |
 
 Each file of Members 2, 3 and 4 starts with a comment block listing what it covers.
 
@@ -471,7 +471,7 @@ Costs are already set to spec in `Config.h`: Melee 10, Ranged 20 (2×), Defense 
 - [x] **Home base** at `x ∈ [0, 150]`: detailed (fortified house, bunker, barricaded shop...) and **clearly visible against the environment**, not just a recolour
 - [x] **At least 5 environment props** that fit the theme and sit naturally in the scene: wrecked cars, barricades, streetlights, sandbags, barrels, fences, dead trees, graves...
 - [x] `drawForeground` for anything that should be drawn over characters (fog, rain, flickering light)
-- [x] Animate a little (flickering lamp, moving clouds, fire) using the `time` parameter
+- [x] Animate a little using the `time` parameter: the Safe House windows flicker and fog drifts over the lanes
 
 **Lanes (`Lanes.cpp`)**: the logic already follows the spec. Polish the look:
 - [x] Hover highlights the **entire lane**

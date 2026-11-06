@@ -148,7 +148,7 @@ void Game::checkWinLose()
 
 void Game::drawGame()
 {
-    Environment::drawBackground(*r, world.time);
+    Environment::drawBackground(*r);
     Lanes::draw(*r, world);
     Environment::drawHomeBase(*r, world.time);
     Collectibles::draw(*r, world);
