@@ -66,7 +66,7 @@ Then follow the [video guide in §13](#13-submission--video).
    ```
 3. Open `Template.sln`.
 4. In the toolbar, set the configuration to **Debug** and the platform to **x64**. ⚠️ Win32 is *not* configured and will not build.
-5. If VS asks to retarget the project (Platform Toolset / Windows SDK), click **OK**.
+5. The project is set up for **Visual Studio 2026** (toolset v145). On Visual Studio 2022, VS asks to **retarget** the project: click **OK** (it switches to v143). If it doesn't ask, right-click the solution → **Retarget solution**.
 6. Press **F5**. The main menu should appear.
 
 Everything the game needs is already in the repo. Nothing else needs installing:
