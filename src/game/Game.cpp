@@ -9,370 +9,283 @@
 #include "../world/Environment.h"
 #include "../world/Cutscene.h"
 
-#include <GLFW/glfw3.h>
 #include <algorithm>
-#include <cmath>
 #include <string>
 
-namespace
-{
-    const float kBtnW = 260.0f, kBtnH = 56.0f, kBtnGap = 18.0f;
-    const float kCenterX = VIRTUAL_W * 0.5f;
+const float BUTTON_W = 260;
+const float BUTTON_H = 56;
+const float CENTER_X = VIRTUAL_W / 2.0f;
 
-    template <typename T>
-    void eraseDead(std::vector<T>& v)
-    {
-        v.erase(std::remove_if(v.begin(), v.end(), [](const T& e) { return !e.alive; }), v.end());
-    }
+void Game::init(GLFWwindow* w, Renderer2D* renderer)
+{
+    window = w;
+    r = renderer;
+    changeState(GameState::MainMenu);
 }
 
-bool Game::init(GLFWwindow* window, Renderer2D* renderer)
+void Game::changeState(GameState s)
 {
-    m_window = window;
-    m_r = renderer;
-    m_world.reset();
-    setState(GameState::MainMenu);
-    return true;
-}
+    state = s;
 
-void Game::shutdown() {}
-
-void Game::setState(GameState s)
-{
-    m_state = s;
-    m_stateTime = 0.0f;
-
-    switch (s)
-    {
-    case GameState::MainMenu:
-    case GameState::SoundSettings:
-    case GameState::Cutscene:
+    if (s == GameState::MainMenu || s == GameState::SoundSettings || s == GameState::Cutscene)
         Audio::playMusic(Music::Menu);
-        break;
-    case GameState::Playing:
+    else if (s == GameState::Playing)
         Audio::playMusic(Music::Gameplay);
-        break;
-    case GameState::Won:
+    else if (s == GameState::Won)
+    {
         Audio::stopMusic();
         Audio::play(Sfx::Win);
-        break;
-    case GameState::Lost:
+    }
+    else if (s == GameState::Lost)
+    {
         Audio::stopMusic();
         Audio::play(Sfx::Lose);
-        break;
-    case GameState::Paused:
-        break;
     }
 }
 
-void Game::startNewGame(bool withCutscene)
+void Game::newGame(bool showCutscene)
 {
-    m_world.reset();
-    m_shownCoins = m_world.coins;
-    m_coinPulse = 0.0f;
-    m_lastWave = 0;
-    m_bannerTime = 0.0f;
-    if (withCutscene)
+    world.reset();
+    if (showCutscene)
     {
         Cutscene::reset();
-        setState(GameState::Cutscene);
+        changeState(GameState::Cutscene);
     }
     else
     {
-        setState(GameState::Playing);
+        changeState(GameState::Playing);
     }
 }
 
 void Game::frame(float dt)
 {
-    m_stateTime += dt;
-    m_menuTime += dt;
-    Renderer2D& r = *m_r;
+    menuTime += dt;
 
-    switch (m_state)
+    switch (state)
     {
     case GameState::MainMenu:
         mainMenu();
         break;
 
     case GameState::SoundSettings:
-        soundSettings();
+        soundMenu();
         break;
 
     case GameState::Cutscene:
-    {
         Cutscene::update(dt);
-        Cutscene::draw(r);
-        Text::drawShadowed(r, "SPACE / ENTER TO SKIP", VIRTUAL_W - 20.0f, 16.0f, 14,
-                           Color(1, 1, 1, 0.6f), Align::Right);
-        bool skip = Input::keyPressed(GLFW_KEY_SPACE) || Input::keyPressed(GLFW_KEY_ENTER);
-        if (Cutscene::finished() || skip)
-            setState(GameState::Playing);
+        Cutscene::draw(*r);
+        Text::drawShadowed(*r, "SPACE TO SKIP", VIRTUAL_W - 20.0f, 16, 14, Colors::White, Align::Right);
+        if (Cutscene::finished() || Input::keyPressed(GLFW_KEY_SPACE) || Input::keyPressed(GLFW_KEY_ENTER))
+            changeState(GameState::Playing);
         break;
-    }
 
     case GameState::Playing:
         if (Input::keyPressed(GLFW_KEY_ESCAPE))
-        {
-            setState(GameState::Paused);
-            drawScene();
-            drawHUD();
-            break;
-        }
-        updatePlaying(dt);
-        drawScene();
+            changeState(GameState::Paused);
+        else
+            updateGame(dt);
+        drawGame();
         drawHUD();
-        drawWaveBanner();
         break;
 
     case GameState::Paused:
-        drawScene();
+        drawGame();
         drawHUD();
         pauseMenu();
         break;
 
     case GameState::Won:
     case GameState::Lost:
-        drawScene();
+        drawGame();
         drawHUD();
-        endMenu(m_state == GameState::Won);
+        endMenu();
         break;
     }
 }
 
-void Game::updatePlaying(float dt)
+void Game::updateGame(float dt)
 {
-    World& w = m_world;
-    w.time += dt;
+    world.time += dt;
 
-    PlayerCards::update(w);
-    Lanes::update(w);
-
-    Players::update(w, dt);
-    Waves::update(w, dt);
-    Enemies::update(w, dt);
-    Combat::update(w, dt);
-    Collectibles::update(w, dt);
+    PlayerCards::update(world);
+    Lanes::update(world);
+    Players::update(world, dt);
+    Waves::update(world, dt);
+    Enemies::update(world, dt);
+    Combat::update(world, dt);
+    Collectibles::update(world, dt);
 
     removeDead();
     checkWinLose();
+}
 
-    if (w.coins != m_shownCoins) { m_coinPulse = 1.0f; m_shownCoins = w.coins; }
-    m_coinPulse = std::max(0.0f, m_coinPulse - dt * 3.0f);
-
-    int wave = Waves::currentWave(w);
-    if (wave != m_lastWave) { m_lastWave = wave; m_bannerTime = 2.2f; }
-    m_bannerTime = std::max(0.0f, m_bannerTime - dt);
+template <typename T>
+static void eraseDead(std::vector<T>& list)
+{
+    list.erase(std::remove_if(list.begin(), list.end(), [](const T& item) { return !item.alive; }), list.end());
 }
 
 void Game::removeDead()
 {
-    eraseDead(m_world.players);
-    eraseDead(m_world.enemies);
-    eraseDead(m_world.projectiles);
-    eraseDead(m_world.collectibles);
+    eraseDead(world.players);
+    eraseDead(world.enemies);
+    eraseDead(world.projectiles);
+    eraseDead(world.collectibles);
 }
 
 void Game::checkWinLose()
 {
-    for (const Enemy& e : m_world.enemies)
+    for (const Enemy& e : world.enemies)
     {
-        if (e.alive && e.x - e.halfWidth <= HOME_BASE_RIGHT)
+        if (e.x - e.halfWidth <= HOME_BASE_RIGHT)
         {
-            setState(GameState::Lost);
+            changeState(GameState::Lost);
             return;
         }
     }
-    if (Waves::allSpawned(m_world) && m_world.enemies.empty())
-        setState(GameState::Won);
+
+    if (Waves::allSpawned(world) && world.enemies.empty())
+        changeState(GameState::Won);
 }
 
-void Game::drawScene()
+void Game::drawGame()
 {
-    Renderer2D& r = *m_r;
-    const World& w = m_world;
+    Environment::drawBackground(*r, world.time);
+    Lanes::draw(*r, world);
+    Environment::drawHomeBase(*r, world.time);
+    Collectibles::draw(*r, world);
 
-    Environment::drawBackground(r, w.time);
-    Lanes::draw(r, w);
-    Environment::drawHomeBase(r, w.time);
-
-    Collectibles::draw(r, w);
-
-    for (int lane = 0; lane < NUM_LANES; ++lane)
+    for (int lane = 0; lane < NUM_LANES; lane++)
     {
-        for (const Player& p : w.players)
-            if (p.lane == lane) Players::draw(r, w, p);
-        for (const Enemy& e : w.enemies)
-            if (e.lane == lane) Enemies::draw(r, w, e);
+        for (const Player& p : world.players)
+            if (p.lane == lane) Players::draw(*r, world, p);
+        for (const Enemy& e : world.enemies)
+            if (e.lane == lane) Enemies::draw(*r, world, e);
     }
 
-    for (const Projectile& pr : w.projectiles)
+    for (const Projectile& pr : world.projectiles)
     {
-        if (!pr.alive) continue;
-        if (pr.fromPlayer) Players::drawProjectile(r, pr);
-        else               Enemies::drawProjectile(r, pr);
+        if (pr.fromPlayer) Players::drawProjectile(*r, pr);
+        else               Enemies::drawProjectile(*r, pr);
     }
 
-    Environment::drawForeground(r, w.time);
-    drawHealthBars();
-}
+    Environment::drawForeground(*r, world.time);
 
-void Game::drawHealthBars()
-{
-    Renderer2D& r = *m_r;
-    for (const Player& p : m_world.players)
-        if (p.alive)
-            UI::healthBar(r, p.x, laneGroundY(p.lane) + p.y + p.height + 8.0f, p.hp, p.maxHp);
-    for (const Enemy& e : m_world.enemies)
-        if (e.alive)
-            UI::healthBar(r, e.x, laneGroundY(e.lane) + e.height + 8.0f, e.hp, e.maxHp);
+    for (const Player& p : world.players)
+        UI::healthBar(*r, p.x, laneGroundY(p.lane) + p.y + p.height + 8, p.hp, p.maxHp);
+    for (const Enemy& e : world.enemies)
+        UI::healthBar(*r, e.x, laneGroundY(e.lane) + e.height + 8, e.hp, e.maxHp);
 }
 
 void Game::drawHUD()
 {
-    Renderer2D& r = *m_r;
-    const World& w = m_world;
+    r->rectGradient(0, FIELD_TOP, (float)VIRTUAL_W, VIRTUAL_H - FIELD_TOP, Colors::rgb(40, 30, 26), Colors::rgb(22, 18, 18));
+    r->rect(0, FIELD_TOP, (float)VIRTUAL_W, 4, Colors::rgb(120, 86, 52));
 
-    r.rectGradient(0, FIELD_TOP, (float)VIRTUAL_W, VIRTUAL_H - FIELD_TOP,
-                   Colors::rgb(40, 30, 26), Colors::rgb(22, 18, 18));
-    r.rect(0, FIELD_TOP, (float)VIRTUAL_W, 4, Colors::rgb(120, 86, 52));
-    r.rect(0, FIELD_TOP + 4, (float)VIRTUAL_W, 2, Colors::rgb(10, 8, 8));
+    r->roundedRect(9, 623, 178, 78, 12, Colors::rgb(150, 110, 70));
+    r->roundedRect(12, 626, 172, 72, 10, Colors::rgb(28, 22, 22));
+    UI::coinIcon(*r, 50, 662, 22);
+    Text::drawShadowed(*r, std::to_string(world.coins), 84, 648, 28, Colors::rgb(255, 230, 140));
+    Text::draw(*r, "COINS", 84, 634, 10, Colors::rgb(190, 160, 120));
 
-    float px = 12, py = 626, pw = 172, ph = 72;
-    r.roundedRect(px - 3, py - 3, pw + 6, ph + 6, 12, Colors::rgb(150, 110, 70));
-    r.roundedRect(px, py, pw, ph, 10, Colors::rgb(28, 22, 22));
-    float pop = 1.0f + 0.25f * m_coinPulse;
-    UI::coinIcon(r, px + 38, py + ph * 0.5f, 22 * pop);
-    Text::drawShadowed(r, std::to_string(w.coins), px + 72, py + ph * 0.5f - 14, 28 * (1.0f + 0.1f * m_coinPulse),
-                       Colors::lerp(Colors::rgb(255, 230, 140), Colors::White, m_coinPulse));
-    Text::draw(r, "COINS", px + 72, py + 8, 10, Colors::rgb(190, 160, 120));
+    PlayerCards::draw(*r, world);
 
-    PlayerCards::draw(r, w);
+    float x = VIRTUAL_W - 252.0f;
+    r->roundedRect(x - 3, 623, 246, 78, 12, Colors::rgb(150, 110, 70));
+    r->roundedRect(x, 626, 240, 72, 10, Colors::rgb(28, 22, 22));
+    std::string wave = "WAVE " + std::to_string(Waves::currentWave(world)) + "/" + std::to_string(NUM_WAVES);
+    Text::drawShadowed(*r, wave, x + 120, 664, 22, Colors::rgb(230, 90, 70), Align::Center);
+    Text::draw(*r, "ZOMBIES ON FIELD: " + std::to_string(world.enemies.size()), x + 120, 638, 11,
+               Colors::rgb(200, 180, 160), Align::Center);
 
-    float wx = VIRTUAL_W - 252.0f, wy = 626, ww = 240, wh = 72;
-    r.roundedRect(wx - 3, wy - 3, ww + 6, wh + 6, 12, Colors::rgb(150, 110, 70));
-    r.roundedRect(wx, wy, ww, wh, 10, Colors::rgb(28, 22, 22));
-    std::string waveText = "WAVE " + std::to_string(Waves::currentWave(w)) + "/" + std::to_string(NUM_WAVES);
-    Text::drawShadowed(r, waveText, wx + ww * 0.5f, wy + 38, 22, Colors::rgb(230, 90, 70), Align::Center);
-    std::string left = "ZOMBIES ON FIELD: " + std::to_string(w.enemies.size());
-    Text::draw(r, left, wx + ww * 0.5f, wy + 12, 11, Colors::rgb(200, 180, 160), Align::Center);
-
-    Text::draw(r, "CLICK LANE: SELECT   W/UP: JUMP   S/DOWN: DUCK   ESC: PAUSE",
-               kCenterX + 160, 606 + 0.0f, 9, Colors::rgb(150, 130, 110), Align::Center);
+    Text::draw(*r, "CLICK LANE: SELECT   W/UP: JUMP   S/DOWN: DUCK   ESC: PAUSE",
+               CENTER_X + 160, 606, 9, Colors::rgb(150, 130, 110), Align::Center);
 }
 
-void Game::drawWaveBanner()
+void Game::menuBackground()
 {
-    if (m_bannerTime <= 0.0f) return;
-    Renderer2D& r = *m_r;
-    float t = m_bannerTime;
-    float a = std::min(1.0f, t / 0.4f) * std::min(1.0f, (2.2f - t) / 0.3f + 0.01f);
-    a = std::clamp(a, 0.0f, 1.0f);
-
-    r.push();
-    r.setAlpha(a);
-    r.rect(0, 300, (float)VIRTUAL_W, 90, Color(0, 0, 0, 0.55f));
-    std::string s = "WAVE " + std::to_string(m_lastWave);
-    if (m_lastWave == NUM_WAVES) s += " - FINAL WAVE";
-    Text::drawShadowed(r, s, kCenterX, 326, 40, Colors::rgb(235, 70, 50), Align::Center);
-    r.pop();
-}
-
-void Game::menuBackdrop()
-{
-    Renderer2D& r = *m_r;
-    Environment::drawBackground(r, m_menuTime);
-    Environment::drawHomeBase(r, m_menuTime);
-    r.fullscreen(Color(0.03f, 0.02f, 0.03f, 0.72f));
-    r.rectGradient(0, 0, (float)VIRTUAL_W, 160, Color(0, 0, 0, 0.6f), Color(0, 0, 0, 0));
-    r.rectGradient(0, VIRTUAL_H - 160.0f, (float)VIRTUAL_W, 160, Color(0, 0, 0, 0), Color(0, 0, 0, 0.6f));
+    Environment::drawBackground(*r, menuTime);
+    Environment::drawHomeBase(*r, menuTime);
+    r->fullscreen(Color(0.03f, 0.02f, 0.03f, 0.72f));
 }
 
 void Game::mainMenu()
 {
-    Renderer2D& r = *m_r;
-    menuBackdrop();
+    menuBackground();
+    Text::drawShadowed(*r, GAME_TITLE, CENTER_X, 520, 72, Colors::rgb(210, 40, 30), Align::Center);
+    Text::draw(*r, "HOLD THE LINE. SURVIVE THE NIGHT.", CENTER_X, 470, 16, Colors::rgb(220, 200, 170), Align::Center);
 
-    float flicker = (std::sin(m_menuTime * 13.0f) > 0.96f) ? 0.55f : 1.0f;
-    Text::drawShadowed(r, GAME_TITLE, kCenterX, 520, 72, Colors::rgb(210, 40, 30) * flicker + Color(0, 0, 0, 1 - flicker),
-                       Align::Center, Colors::rgb(0, 0, 0, 200));
-    Text::draw(r, "HOLD THE LINE. SURVIVE THE NIGHT.", kCenterX, 470, 16, Colors::rgb(220, 200, 170), Align::Center);
-
-    float x = kCenterX - kBtnW * 0.5f;
-    float y = 360;
-    if (UI::button(r, "START GAME", x, y, kBtnW, kBtnH))                       startNewGame(true);
-    if (UI::button(r, "SOUND SETTINGS", x, y - (kBtnH + kBtnGap), kBtnW, kBtnH)) setState(GameState::SoundSettings);
-    if (UI::button(r, "EXIT", x, y - 2 * (kBtnH + kBtnGap), kBtnW, kBtnH))     glfwSetWindowShouldClose(m_window, GLFW_TRUE);
-
-    Text::draw(r, "DMET 502 - COMPUTER GRAPHICS - WINTER 2026", kCenterX, 24, 10,
-               Colors::rgb(140, 120, 100), Align::Center);
+    float x = CENTER_X - BUTTON_W / 2;
+    if (UI::button(*r, "START GAME", x, 360, BUTTON_W, BUTTON_H))
+        newGame(true);
+    if (UI::button(*r, "SOUND SETTINGS", x, 286, BUTTON_W, BUTTON_H))
+        changeState(GameState::SoundSettings);
+    if (UI::button(*r, "EXIT", x, 212, BUTTON_W, BUTTON_H))
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
-void Game::soundSettings()
+void Game::soundMenu()
 {
-    Renderer2D& r = *m_r;
-    menuBackdrop();
-    UI::panel(r, kCenterX - 230, 150, 460, 420);
-    Text::drawShadowed(r, "SOUND SETTINGS", kCenterX, 510, 32, Colors::rgb(235, 200, 140), Align::Center);
+    menuBackground();
+    UI::panel(*r, CENTER_X - 230, 150, 460, 420);
+    Text::drawShadowed(*r, "SOUND SETTINGS", CENTER_X, 510, 32, Colors::rgb(235, 200, 140), Align::Center);
 
-    float barX = kCenterX - 160, barY = 430, barW = 320, barH = 26;
-    r.rect(barX - 3, barY - 3, barW + 6, barH + 6, Colors::rgb(10, 10, 10));
-    r.rect(barX, barY, barW, barH, Colors::rgb(50, 40, 40));
+    float barX = CENTER_X - 160;
+    r->rect(barX - 3, 427, 326, 32, Colors::rgb(10, 10, 10));
+    r->rect(barX, 430, 320, 26, Colors::rgb(50, 40, 40));
     Color fill = Audio::muted() ? Colors::rgb(90, 90, 90) : Colors::rgb(200, 60, 45);
-    r.rect(barX, barY, barW * Audio::volume(), barH, fill);
-    for (int i = 1; i < 10; ++i) r.rect(barX + barW * i / 10.0f - 1, barY, 2, barH, Colors::rgb(10, 10, 10, 180));
+    r->rect(barX, 430, 320 * Audio::volume(), 26, fill);
 
-    std::string label = Audio::muted() ? "MUTED" : ("VOLUME " + std::to_string((int)std::lround(Audio::volume() * 100)) + "%");
-    Text::draw(r, label, kCenterX, 395, 16, Colors::rgb(230, 220, 200), Align::Center);
+    int percent = (int)(Audio::volume() * 100 + 0.5f);
+    std::string label = Audio::muted() ? "MUTED" : "VOLUME " + std::to_string(percent) + "%";
+    Text::draw(*r, label, CENTER_X, 395, 16, Colors::rgb(230, 220, 200), Align::Center);
 
-    float bw = 120, bh = 52;
-    if (UI::button(r, "- VOL", kCenterX - 200, 310, bw, bh)) Audio::volumeDown();
-    if (UI::button(r, Audio::muted() ? "UNMUTE" : "MUTE", kCenterX - bw * 0.5f, 310, bw, bh))
+    if (UI::button(*r, "- VOL", CENTER_X - 200, 310, 120, 52))
+        Audio::volumeDown();
+    if (UI::button(*r, Audio::muted() ? "UNMUTE" : "MUTE", CENTER_X - 60, 310, 120, 52))
         Audio::setMuted(!Audio::muted());
-    if (UI::button(r, "+ VOL", kCenterX + 80, 310, bw, bh)) Audio::volumeUp();
+    if (UI::button(*r, "+ VOL", CENTER_X + 80, 310, 120, 52))
+        Audio::volumeUp();
 
-    if (UI::button(r, "BACK", kCenterX - kBtnW * 0.5f, 190, kBtnW, kBtnH) || Input::keyPressed(GLFW_KEY_ESCAPE))
-        setState(GameState::MainMenu);
+    if (UI::button(*r, "BACK", CENTER_X - BUTTON_W / 2, 190, BUTTON_W, BUTTON_H) || Input::keyPressed(GLFW_KEY_ESCAPE))
+        changeState(GameState::MainMenu);
 }
 
 void Game::pauseMenu()
 {
-    Renderer2D& r = *m_r;
-    r.fullscreen(Color(0, 0, 0, 0.55f));
-    UI::panel(r, kCenterX - 200, 170, 400, 360);
-    Text::drawShadowed(r, "PAUSED", kCenterX, 460, 40, Colors::rgb(235, 200, 140), Align::Center);
+    r->fullscreen(Color(0, 0, 0, 0.55f));
+    UI::panel(*r, CENTER_X - 200, 170, 400, 360);
+    Text::drawShadowed(*r, "PAUSED", CENTER_X, 460, 40, Colors::rgb(235, 200, 140), Align::Center);
 
-    float x = kCenterX - kBtnW * 0.5f;
-    if (UI::button(r, "CONTINUE", x, 370, kBtnW, kBtnH) || (m_stateTime > 0.0f && Input::keyPressed(GLFW_KEY_ESCAPE)))
-        setState(GameState::Playing);
-    else if (UI::button(r, "RESTART", x, 296, kBtnW, kBtnH))
-        startNewGame(false);
-    else if (UI::button(r, "MAIN MENU", x, 222, kBtnW, kBtnH))
-        setState(GameState::MainMenu);
+    float x = CENTER_X - BUTTON_W / 2;
+    if (UI::button(*r, "CONTINUE", x, 370, BUTTON_W, BUTTON_H) || Input::keyPressed(GLFW_KEY_ESCAPE))
+        changeState(GameState::Playing);
+    else if (UI::button(*r, "RESTART", x, 296, BUTTON_W, BUTTON_H))
+        newGame(false);
+    else if (UI::button(*r, "MAIN MENU", x, 222, BUTTON_W, BUTTON_H))
+        changeState(GameState::MainMenu);
 }
 
-void Game::endMenu(bool won)
+void Game::endMenu()
 {
-    Renderer2D& r = *m_r;
-    float fade = std::min(1.0f, m_stateTime / 0.6f);
-    r.fullscreen(won ? Color(0.0f, 0.05f, 0.02f, 0.6f * fade) : Color(0.15f, 0.0f, 0.0f, 0.65f * fade));
-    if (m_stateTime < 0.6f) return;
+    bool won = state == GameState::Won;
+    r->fullscreen(won ? Color(0, 0.05f, 0.02f, 0.6f) : Color(0.15f, 0, 0, 0.65f));
+    UI::panel(*r, CENTER_X - 260, 170, 520, 380);
 
-    UI::panel(r, kCenterX - 260, 170, 520, 380);
     if (won)
     {
-        Text::drawShadowed(r, "YOU SURVIVED!", kCenterX, 470, 44, Colors::rgb(120, 230, 120), Align::Center);
-        Text::draw(r, "ALL THREE WAVES WERE PUSHED BACK.", kCenterX, 420, 14, Colors::rgb(220, 210, 190), Align::Center);
+        Text::drawShadowed(*r, "YOU SURVIVED!", CENTER_X, 470, 44, Colors::rgb(120, 230, 120), Align::Center);
+        Text::draw(*r, "ALL THREE WAVES WERE PUSHED BACK.", CENTER_X, 420, 14, Colors::rgb(220, 210, 190), Align::Center);
     }
     else
     {
-        Text::drawShadowed(r, "THE BASE HAS FALLEN", kCenterX, 470, 38, Colors::rgb(235, 60, 45), Align::Center);
-        Text::draw(r, "A ZOMBIE BROKE THROUGH THE LINE.", kCenterX, 420, 14, Colors::rgb(220, 210, 190), Align::Center);
+        Text::drawShadowed(*r, "THE BASE HAS FALLEN", CENTER_X, 470, 38, Colors::rgb(235, 60, 45), Align::Center);
+        Text::draw(*r, "A ZOMBIE BROKE THROUGH THE LINE.", CENTER_X, 420, 14, Colors::rgb(220, 210, 190), Align::Center);
     }
 
-    float x = kCenterX - kBtnW * 0.5f;
-    if (UI::button(r, "RESTART", x, 310, kBtnW, kBtnH))
-        startNewGame(false);
-    else if (UI::button(r, "MAIN MENU", x, 236, kBtnW, kBtnH))
-        setState(GameState::MainMenu);
+    float x = CENTER_X - BUTTON_W / 2;
+    if (UI::button(*r, "RESTART", x, 310, BUTTON_W, BUTTON_H))
+        newGame(false);
+    else if (UI::button(*r, "MAIN MENU", x, 236, BUTTON_W, BUTTON_H))
+        changeState(GameState::MainMenu);
 }

@@ -1,89 +1,91 @@
 #include "Input.h"
 #include "Renderer2D.h"
-#include "../Config.h"
 
-namespace
+static GLFWwindow* window = nullptr;
+
+static bool keysDown[GLFW_KEY_LAST + 1];
+static bool keysPressed[GLFW_KEY_LAST + 1];
+static bool buttonsDown[GLFW_MOUSE_BUTTON_LAST + 1];
+static bool buttonsPressed[GLFW_MOUSE_BUTTON_LAST + 1];
+static bool clickUsed = false;
+static glm::vec2 mousePos(0, 0);
+
+static void onKey(GLFWwindow*, int key, int, int action, int)
 {
-    const int kMaxKeys = GLFW_KEY_LAST + 1;
-    const int kMaxButtons = GLFW_MOUSE_BUTTON_LAST + 1;
-
-    bool g_keyDown[kMaxKeys] = {};
-    bool g_keyPressed[kMaxKeys] = {};
-    bool g_keyReleased[kMaxKeys] = {};
-    bool g_btnDown[kMaxButtons] = {};
-    bool g_btnPressed[kMaxButtons] = {};
-    bool g_btnReleased[kMaxButtons] = {};
-    bool g_clickConsumed = false;
-
-    GLFWwindow* g_window = nullptr;
-    glm::vec2 g_mouse(0.0f);
-
-    void keyCallback(GLFWwindow*, int key, int, int action, int)
+    if (key < 0 || key > GLFW_KEY_LAST) return;
+    if (action == GLFW_PRESS)
     {
-        if (key < 0 || key >= kMaxKeys) return;
-        if (action == GLFW_PRESS)        { g_keyDown[key] = true;  g_keyPressed[key] = true; }
-        else if (action == GLFW_RELEASE) { g_keyDown[key] = false; g_keyReleased[key] = true; }
+        keysDown[key] = true;
+        keysPressed[key] = true;
     }
-
-    void mouseCallback(GLFWwindow*, int button, int action, int)
+    else if (action == GLFW_RELEASE)
     {
-        if (button < 0 || button >= kMaxButtons) return;
-        if (action == GLFW_PRESS)        { g_btnDown[button] = true;  g_btnPressed[button] = true; }
-        else if (action == GLFW_RELEASE) { g_btnDown[button] = false; g_btnReleased[button] = true; }
+        keysDown[key] = false;
+    }
+}
+
+static void onMouseButton(GLFWwindow*, int button, int action, int)
+{
+    if (button < 0 || button > GLFW_MOUSE_BUTTON_LAST) return;
+    if (action == GLFW_PRESS)
+    {
+        buttonsDown[button] = true;
+        buttonsPressed[button] = true;
+    }
+    else if (action == GLFW_RELEASE)
+    {
+        buttonsDown[button] = false;
     }
 }
 
 namespace Input
 {
-    void init(GLFWwindow* window)
+    void init(GLFWwindow* w)
     {
-        g_window = window;
-        glfwSetKeyCallback(window, keyCallback);
-        glfwSetMouseButtonCallback(window, mouseCallback);
+        window = w;
+        glfwSetKeyCallback(window, onKey);
+        glfwSetMouseButtonCallback(window, onMouseButton);
     }
 
     void beginFrame()
     {
-        for (int i = 0; i < kMaxKeys; ++i)    { g_keyPressed[i] = false; g_keyReleased[i] = false; }
-        for (int i = 0; i < kMaxButtons; ++i) { g_btnPressed[i] = false; g_btnReleased[i] = false; }
-        g_clickConsumed = false;
+        for (bool& k : keysPressed) k = false;
+        for (bool& b : buttonsPressed) b = false;
+        clickUsed = false;
     }
 
     void update(const Renderer2D& r)
     {
-        if (!g_window) return;
         double cx, cy;
-        glfwGetCursorPos(g_window, &cx, &cy);
+        glfwGetCursorPos(window, &cx, &cy);
+
         int winW, winH, fbW, fbH;
-        glfwGetWindowSize(g_window, &winW, &winH);
-        glfwGetFramebufferSize(g_window, &fbW, &fbH);
-        if (winW <= 0 || winH <= 0) return;
+        glfwGetWindowSize(window, &winW, &winH);
+        glfwGetFramebufferSize(window, &fbW, &fbH);
+        if (winW == 0 || winH == 0) return;
 
         float px = (float)cx * fbW / winW;
-        float py = (float)cy * fbH / winH;
-        float s = r.viewportScale();
-        g_mouse.x = (px - r.viewportX()) / s;
-        g_mouse.y = ((fbH - py) - r.viewportY()) / s;
+        float py = fbH - (float)cy * fbH / winH;
+        mousePos.x = (px - r.viewportX()) / r.viewportScale();
+        mousePos.y = (py - r.viewportY()) / r.viewportScale();
     }
 
-    bool keyDown(int key)     { return key >= 0 && key < kMaxKeys && g_keyDown[key]; }
-    bool keyPressed(int key)  { return key >= 0 && key < kMaxKeys && g_keyPressed[key]; }
-    bool keyReleased(int key) { return key >= 0 && key < kMaxKeys && g_keyReleased[key]; }
+    bool keyDown(int key)    { return keysDown[key]; }
+    bool keyPressed(int key) { return keysPressed[key]; }
+    bool mouseDown(int b)    { return buttonsDown[b]; }
 
-    bool mouseDown(int b)     { return b >= 0 && b < kMaxButtons && g_btnDown[b]; }
     bool mousePressed(int b)
     {
-        if (b < 0 || b >= kMaxButtons) return false;
-        if (b == GLFW_MOUSE_BUTTON_LEFT && g_clickConsumed) return false;
-        return g_btnPressed[b];
+        if (b == GLFW_MOUSE_BUTTON_LEFT && clickUsed) return false;
+        return buttonsPressed[b];
     }
-    bool mouseReleased(int b) { return b >= 0 && b < kMaxButtons && g_btnReleased[b]; }
-    void consumeClick()       { g_clickConsumed = true; }
 
-    glm::vec2 mouse() { return g_mouse; }
+    void consumeClick() { clickUsed = true; }
+
+    glm::vec2 mouse() { return mousePos; }
 
     bool mouseInRect(float x, float y, float w, float h)
     {
-        return g_mouse.x >= x && g_mouse.x <= x + w && g_mouse.y >= y && g_mouse.y <= y + h;
+        return mousePos.x >= x && mousePos.x <= x + w && mousePos.y >= y && mousePos.y <= y + h;
     }
 }

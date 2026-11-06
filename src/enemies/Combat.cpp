@@ -3,93 +3,99 @@
 
 #include <cmath>
 
-namespace
+static bool touching(const Player& p, const Enemy& e, float extra)
 {
-    const float kSpitRange   = 440.0f;
-    const float kSkullRange  = 520.0f;
-    const float kImpactTime  = 0.35f;
-    const float kMeleeReach  = 8.0f;
-    const float kBruteReach  = 14.0f;
-    const float kMeleePeriod = 1.0f;
+    return p.alive && e.alive && p.lane == e.lane && fabs(p.x - e.x) < p.halfWidth + e.halfWidth + extra;
+}
 
-    void startImpact(Projectile& pr)
-    {
-        pr.kind |= ENEMY_PROJ_IMPACT;
-        pr.age = 0.0f;
-        pr.vx = pr.vy = 0.0f;
-    }
+static bool dodged(const Player& p, AttackHeight height)
+{
+    if (p.type == PlayerType::Defense) return false;
+    if (height == AttackHeight::High && p.pose == Pose::Ducking) return true;
+    if (height == AttackHeight::Low && p.pose == Pose::Jumping) return true;
+    return false;
+}
 
-    Player* nearestPlayer(World& w, const Enemy& e, float reach)
+static void bruteAttacks(World& w)
+{
+    for (Enemy& e : w.enemies)
     {
-        Player* best = nullptr;
-        float bestD = 1e9f;
+        if (!e.strikeNow) continue;
+        e.strikeNow = false;
+
+        Player* target = nullptr;
         for (Player& p : w.players)
-        {
-            if (!p.alive || p.lane != e.lane) continue;
-            float d = std::fabs(p.x - e.x);
-            if (d < p.halfWidth + e.halfWidth + reach && d < bestD) { best = &p; bestD = d; }
-        }
-        return best;
-    }
+            if (touching(p, e, 14) && (!target || fabs(p.x - e.x) < fabs(target->x - e.x)))
+                target = &p;
 
-    Enemy* nearestEnemy(World& w, const Player& p, float reach)
+        if (target)
+            Players::damage(w, *target, HARD_ENEMY_DAMAGE);
+    }
+}
+
+static void meleePlayerAttacks(World& w, float dt)
+{
+    for (Player& p : w.players)
     {
-        Enemy* best = nullptr;
-        float bestD = 1e9f;
+        if (!p.alive || p.type != PlayerType::Melee) continue;
+
+        p.attackTimer -= dt;
+        if (p.attackTimer > 0) continue;
+
+        Enemy* target = nullptr;
         for (Enemy& e : w.enemies)
+            if (touching(p, e, 8) && (!target || fabs(p.x - e.x) < fabs(p.x - target->x)))
+                target = &e;
+
+        if (target)
         {
-            if (!e.alive || e.lane != p.lane) continue;
-            float d = std::fabs(p.x - e.x);
-            if (d < p.halfWidth + e.halfWidth + reach && d < bestD) { best = &e; bestD = d; }
-        }
-        return best;
-    }
-
-    bool dodges(const Player& p, AttackHeight h)
-    {
-        if (p.type == PlayerType::Defense) return false;
-        if (h == AttackHeight::High && p.pose == Pose::Ducking) return true;
-        if (h == AttackHeight::Low && p.pose == Pose::Jumping) return true;
-        return false;
-    }
-
-    void updateEnemyProjectile(World& w, Projectile& pr, float dt)
-    {
-        int kind = pr.kind & 0xFF;
-        float ground = laneGroundY(pr.lane);
-        pr.x += pr.vx * dt;
-
-        float range;
-        if (kind == ENEMY_PROJ_SPIT)
-        {
-            pr.y = ground + 76.0f + 3.0f * std::sin(pr.age * 14.0f);
-            pr.vy = 42.0f * std::cos(pr.age * 14.0f);
-            range = kSpitRange;
+            Enemies::damage(w, *target, PLAYER_DAMAGE);
+            p.attackTimer = 1.0f;
         }
         else
         {
-            pr.y = ground + 9.0f;
-            range = kSkullRange;
+            p.attackTimer = 0;
         }
+    }
+}
 
-        if (pr.age * std::fabs(pr.vx) > range || pr.x < HOME_BASE_RIGHT - 10.0f)
+static void moveProjectiles(World& w, float dt)
+{
+    for (Projectile& pr : w.projectiles)
+    {
+        if (!pr.alive) continue;
+        pr.age += dt;
+        pr.x += pr.vx * dt;
+        pr.y += pr.vy * dt;
+
+        if (pr.x < -50 || pr.x > VIRTUAL_W + 50)
+            pr.alive = false;
+
+        if (pr.fromPlayer) continue;
+
+        if (pr.kind == SPIT)
+            pr.y = laneGroundY(pr.lane) + 76 + 3 * sin(pr.age * 14);
+
+        float range = pr.kind == SPIT ? 440.0f : 520.0f;
+        if (pr.age * fabs(pr.vx) > range || pr.x < HOME_BASE_RIGHT)
         {
-            startImpact(pr);
-            return;
+            pr.alive = false;
+            continue;
         }
 
         Player* target = nullptr;
         for (Player& p : w.players)
         {
             if (!p.alive || p.lane != pr.lane) continue;
-            if (std::fabs(p.x - pr.x) >= p.halfWidth + 6.0f) continue;
-            if (dodges(p, pr.height)) continue;
+            if (fabs(p.x - pr.x) > p.halfWidth + 6) continue;
+            if (dodged(p, pr.height)) continue;
             if (!target || p.x > target->x) target = &p;
         }
+
         if (target)
         {
             Players::damage(w, *target, pr.damage);
-            startImpact(pr);
+            pr.alive = false;
         }
     }
 }
@@ -98,46 +104,8 @@ namespace Combat
 {
     void update(World& w, float dt)
     {
-        for (Enemy& e : w.enemies)
-        {
-            if (!e.alive || !e.strikeNow) continue;
-            e.strikeNow = false;
-            if (Player* p = nearestPlayer(w, e, kBruteReach))
-                Players::damage(w, *p, HARD_ENEMY_DAMAGE);
-        }
-
-        for (Player& p : w.players)
-        {
-            if (!p.alive || p.type != PlayerType::Melee) continue;
-            p.attackTimer -= dt;
-            if (p.attackTimer > 0.0f) continue;
-            if (Enemy* e = nearestEnemy(w, p, kMeleeReach))
-            {
-                Enemies::damage(w, *e, PLAYER_DAMAGE);
-                p.attackTimer = kMeleePeriod;
-            }
-            else p.attackTimer = 0.0f;
-        }
-
-        for (Projectile& pr : w.projectiles)
-        {
-            if (!pr.alive) continue;
-            pr.age += dt;
-
-            if (pr.fromPlayer)
-            {
-                pr.x += pr.vx * dt;
-                pr.y += pr.vy * dt;
-                if (pr.x < -50.0f || pr.x > VIRTUAL_W + 50.0f) pr.alive = false;
-                continue;
-            }
-
-            if (pr.kind & ENEMY_PROJ_IMPACT)
-            {
-                if (pr.age > kImpactTime) pr.alive = false;
-                continue;
-            }
-            updateEnemyProjectile(w, pr, dt);
-        }
+        bruteAttacks(w);
+        meleePlayerAttacks(w, dt);
+        moveProjectiles(w, dt);
     }
 }

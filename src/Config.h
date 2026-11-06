@@ -30,7 +30,7 @@ constexpr int MELEE_COST        = 10;
 constexpr int RANGED_COST       = 2 * MELEE_COST;
 constexpr int DEFENSE_COST      = 3 * MELEE_COST;
 constexpr int START_COINS       = 3 * MELEE_COST;
-constexpr int COIN_DROP_VALUE   = 10;
+constexpr int COIN_DROP_VALUE   = 20;
 
 constexpr int MELEE_PLAYER_HP    = 5;
 constexpr int RANGED_PLAYER_HP   = 5;

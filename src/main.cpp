@@ -13,11 +13,7 @@
 
 int main()
 {
-    if (!glfwInit())
-    {
-        std::cerr << "Failed to initialise GLFW\n";
-        return -1;
-    }
+    if (!glfwInit()) return -1;
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -36,45 +32,44 @@ int main()
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        std::cerr << "Failed to initialise GLAD\n";
+        std::cerr << "Failed to init GLAD\n";
         return -1;
     }
     glEnable(GL_MULTISAMPLE);
 
-    std::srand((unsigned)std::time(nullptr));
+    srand((unsigned)time(nullptr));
 
     Renderer2D renderer;
-    if (!renderer.init()) return -1;
+    renderer.init();
     Input::init(window);
     Audio::init();
 
     Game game;
     game.init(window, &renderer);
 
-    double last = glfwGetTime();
+    float lastFrame = (float)glfwGetTime();
     while (!glfwWindowShouldClose(window))
     {
-        double now = glfwGetTime();
-        float dt = (float)(now - last);
-        last = now;
-        if (dt > 0.05f) dt = 0.05f;
+        float currentFrame = (float)glfwGetTime();
+        float deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+        if (deltaTime > 0.05f) deltaTime = 0.05f;
 
         Input::beginFrame();
         glfwPollEvents();
 
-        int fbW, fbH;
-        glfwGetFramebufferSize(window, &fbW, &fbH);
-        if (fbW == 0 || fbH == 0) continue;
+        int width, height;
+        glfwGetFramebufferSize(window, &width, &height);
+        if (width == 0 || height == 0) continue;
 
-        renderer.beginFrame(fbW, fbH);
+        renderer.beginFrame(width, height);
         Input::update(renderer);
-        game.frame(dt);
+        game.frame(deltaTime);
         renderer.endFrame();
 
         glfwSwapBuffers(window);
     }
 
-    game.shutdown();
     Audio::shutdown();
     renderer.shutdown();
     glfwTerminate();

@@ -368,7 +368,13 @@ namespace Players
 
             // auto-advance left -> right; Defense never moves
             if (!defense && !p.engaged)
-                p.x = std::min(p.x + kWalkSpeed * dt, FIELD_RIGHT - p.halfWidth);
+                p.x += kWalkSpeed * dt;
+
+            if (p.x - p.halfWidth > FIELD_RIGHT)
+            {
+                p.alive = false;
+                continue;
+            }
 
             // ---- jump / duck: only players in SELECTED lanes, never Defense ----
             bool selected = w.lanes.selected[p.lane];

@@ -1,118 +1,106 @@
 #include "Audio.h"
 #include <miniaudio.h>
 
-#include <algorithm>
-#include <cmath>
-#include <cstdio>
+#include <fstream>
 #include <iostream>
-#include <set>
 #include <string>
 
-namespace
+static ma_engine engine;
+static bool  ready = false;
+static float vol = 0.7f;
+static bool  isMuted = false;
+
+static ma_sound    music;
+static bool        musicLoaded = false;
+static std::string currentMusic;
+
+static std::string findFile(const std::string& name)
 {
-    ma_engine g_engine;
-    bool      g_ready = false;
-    float     g_volume = 0.7f;
-    bool      g_muted = false;
-
-    ma_sound    g_music;
-    bool        g_musicLoaded = false;
-    std::string g_musicName;
-
-    std::set<std::string> g_warned;
-
-    bool fileExists(const std::string& path)
+    const char* extensions[] = { ".wav", ".mp3", ".flac" };
+    for (const char* ext : extensions)
     {
-        FILE* f = nullptr;
-#ifdef _MSC_VER
-        fopen_s(&f, path.c_str(), "rb");
-#else
-        f = std::fopen(path.c_str(), "rb");
-#endif
-        if (!f) return false;
-        std::fclose(f);
-        return true;
+        std::string path = "assets/audio/" + name + ext;
+        if (std::ifstream(path).good()) return path;
     }
+    std::cerr << "Missing sound: " << name << std::endl;
+    return "";
+}
 
-    std::string resolve(const std::string& name)
-    {
-        static const char* exts[] = { ".wav", ".mp3", ".flac" };
-        for (const char* ext : exts)
-        {
-            std::string p = "assets/audio/" + name + ext;
-            if (fileExists(p)) return p;
-        }
-        if (g_warned.insert(name).second)
-            std::cerr << "[Audio] missing sound: assets/audio/" << name << ".wav (skipped)\n";
-        return "";
-    }
-
-    void applyVolume()
-    {
-        if (g_ready) ma_engine_set_volume(&g_engine, g_muted ? 0.0f : g_volume);
-    }
+static void applyVolume()
+{
+    if (ready) ma_engine_set_volume(&engine, isMuted ? 0.0f : vol);
 }
 
 namespace Audio
 {
     bool init()
     {
-        if (ma_engine_init(nullptr, &g_engine) != MA_SUCCESS)
+        if (ma_engine_init(nullptr, &engine) != MA_SUCCESS)
         {
-            std::cerr << "[Audio] could not start audio device - running silent\n";
+            std::cerr << "Could not start audio\n";
             return false;
         }
-        g_ready = true;
+        ready = true;
         applyVolume();
         return true;
     }
 
     void shutdown()
     {
-        if (!g_ready) return;
+        if (!ready) return;
         stopMusic();
-        ma_engine_uninit(&g_engine);
-        g_ready = false;
+        ma_engine_uninit(&engine);
+        ready = false;
     }
 
-    void play(const char* sfxName)
+    void play(const char* name)
     {
-        if (!g_ready || g_muted) return;
-        std::string path = resolve(sfxName);
-        if (path.empty()) return;
-        ma_engine_play_sound(&g_engine, path.c_str(), nullptr);
+        if (!ready || isMuted) return;
+        std::string path = findFile(name);
+        if (!path.empty()) ma_engine_play_sound(&engine, path.c_str(), nullptr);
     }
 
-    void playMusic(const char* musicName)
+    void playMusic(const char* name)
     {
-        if (!g_ready) return;
-        if (g_musicLoaded && g_musicName == musicName) return;
+        if (!ready || (musicLoaded && currentMusic == name)) return;
         stopMusic();
-        std::string path = resolve(musicName);
+
+        std::string path = findFile(name);
         if (path.empty()) return;
-        if (ma_sound_init_from_file(&g_engine, path.c_str(), MA_SOUND_FLAG_STREAM,
-                                    nullptr, nullptr, &g_music) != MA_SUCCESS)
+        if (ma_sound_init_from_file(&engine, path.c_str(), MA_SOUND_FLAG_STREAM, nullptr, nullptr, &music) != MA_SUCCESS)
             return;
-        ma_sound_set_looping(&g_music, MA_TRUE);
-        ma_sound_set_volume(&g_music, 0.55f);
-        ma_sound_start(&g_music);
-        g_musicLoaded = true;
-        g_musicName = musicName;
+
+        ma_sound_set_looping(&music, MA_TRUE);
+        ma_sound_set_volume(&music, 0.55f);
+        ma_sound_start(&music);
+        musicLoaded = true;
+        currentMusic = name;
     }
 
     void stopMusic()
     {
-        if (!g_musicLoaded) return;
-        ma_sound_stop(&g_music);
-        ma_sound_uninit(&g_music);
-        g_musicLoaded = false;
-        g_musicName.clear();
+        if (!musicLoaded) return;
+        ma_sound_stop(&music);
+        ma_sound_uninit(&music);
+        musicLoaded = false;
+        currentMusic = "";
     }
 
-    void  setVolume(float v) { g_volume = std::clamp(v, 0.0f, 1.0f); applyVolume(); }
-    float volume()           { return g_volume; }
-    void  volumeUp()         { setVolume(std::round((g_volume + 0.1f) * 10.0f) / 10.0f); }
-    void  volumeDown()       { setVolume(std::round((g_volume - 0.1f) * 10.0f) / 10.0f); }
-    void  setMuted(bool m)   { g_muted = m; applyVolume(); }
-    bool  muted()            { return g_muted; }
+    void volumeUp()
+    {
+        vol += 0.1f;
+        if (vol > 1.0f) vol = 1.0f;
+        applyVolume();
+    }
+
+    void volumeDown()
+    {
+        vol -= 0.1f;
+        if (vol < 0.0f) vol = 0.0f;
+        applyVolume();
+    }
+
+    float volume()        { return vol; }
+    void  setMuted(bool m) { isMuted = m; applyVolume(); }
+    bool  muted()         { return isMuted; }
 }

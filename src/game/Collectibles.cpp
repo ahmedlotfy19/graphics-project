@@ -5,12 +5,16 @@
 #include "../core/Audio.h"
 
 #include <cmath>
+#include <cstdlib>
 
-namespace
+const float GRAVITY = -1100;
+const float BOUNCE = 0.45f;
+const float FRICTION = 0.6f;
+const float COIN_SIZE = 13;
+
+static float randomFloat(float a, float b)
 {
-    const float kGravity     = -900.0f;
-    const float kPickupRange = 30.0f;
-    const float kRadius      = 13.0f;
+    return a + (b - a) * (rand() / (float)RAND_MAX);
 }
 
 namespace Collectibles
@@ -20,8 +24,9 @@ namespace Collectibles
         Collectible c;
         c.lane = lane;
         c.x = x;
-        c.y = 40.0f;
-        c.vy = 320.0f;
+        c.y = 50;
+        c.vx = randomFloat(20, 110);
+        c.vy = randomFloat(330, 420);
         c.value = value;
         w.collectibles.push_back(c);
     }
@@ -30,24 +35,49 @@ namespace Collectibles
     {
         for (Collectible& c : w.collectibles)
         {
-            if (!c.alive) continue;
             c.age += dt;
+            c.squash -= dt * 5;
+            if (c.squash < 0) c.squash = 0;
 
-            if (c.y > 0.0f || c.vy > 0.0f)
+            if (!c.resting)
             {
-                c.vy += kGravity * dt;
+                c.vy += GRAVITY * dt;
+                c.x += c.vx * dt;
                 c.y += c.vy * dt;
-                if (c.y <= 0.0f)
+                c.spin += (6 + fabs(c.vx) * 0.05f) * dt;
+
+                float left = HOME_BASE_RIGHT + COIN_SIZE;
+                float right = FIELD_RIGHT - COIN_SIZE;
+                if (c.x < left)  { c.x = left;  c.vx = -c.vx * BOUNCE; }
+                if (c.x > right) { c.x = right; c.vx = -c.vx * BOUNCE; }
+
+                if (c.y <= 0)
                 {
-                    c.y = 0.0f;
-                    c.vy = (std::fabs(c.vy) > 120.0f) ? -c.vy * 0.35f : 0.0f;
+                    c.y = 0;
+                    c.squash = std::fmin(1.0f, fabs(c.vy) / 400);
+
+                    if (fabs(c.vy) > 90)
+                    {
+                        c.vy = -c.vy * BOUNCE;
+                        c.vx *= FRICTION;
+                    }
+                    else
+                    {
+                        c.vy = 0;
+                        c.vx = 0;
+                        c.resting = true;
+                    }
                 }
+            }
+            else
+            {
+                c.spin += 3 * dt;
             }
 
             for (const Player& p : w.players)
             {
-                if (!p.alive || p.lane != c.lane) continue;
-                if (std::fabs(p.x - c.x) < p.halfWidth + kPickupRange)
+                if (p.alive && p.lane == c.lane && fabs(p.x - c.x) < p.halfWidth + COIN_SIZE + 10
+                    && c.y < p.y + p.height)
                 {
                     c.alive = false;
                     w.coins += c.value;
@@ -62,17 +92,21 @@ namespace Collectibles
     {
         for (const Collectible& c : w.collectibles)
         {
-            if (!c.alive) continue;
             float ground = laneGroundY(c.lane);
-            float bob = (c.y == 0.0f) ? 3.0f * std::sin(c.age * 4.0f) : 0.0f;
-            float cy = ground + kRadius + 4.0f + c.y + bob;
+            float bob = c.resting ? 3 * sin(c.age * 4) + 3 : 0;
+            float y = ground + COIN_SIZE + 2 + c.y + bob;
 
-            float shadow = 1.0f / (1.0f + c.y * 0.01f);
-            r.ellipse(c.x, ground + 2, kRadius * shadow, 4 * shadow, Color(0, 0, 0, 0.35f), 16);
+            float shadow = 1 / (1 + c.y * 0.012f);
+            r.ellipse(c.x, ground + 2, COIN_SIZE * shadow, 4 * shadow, Color(0, 0, 0, 0.35f), 16);
 
-            float pulse = 0.5f + 0.5f * std::sin(c.age * 5.0f);
-            r.circle(c.x, cy, kRadius + 6 + pulse * 3, Colors::rgb(255, 220, 90, 50), 20);
-            UI::coinIcon(r, c.x, cy, kRadius, c.age * 4.0f);
+            if (c.resting)
+                r.circle(c.x, y, COIN_SIZE + 7, Colors::rgb(255, 220, 90, 50), 20);
+
+            r.push();
+            r.translate(c.x, y - COIN_SIZE);
+            r.scale(1 + c.squash * 0.3f, 1 - c.squash * 0.35f);
+            UI::coinIcon(r, 0, COIN_SIZE, COIN_SIZE, c.spin);
+            r.pop();
         }
     }
 }
