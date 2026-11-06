@@ -12,5 +12,4 @@ namespace Cutscene
     void  update(float dt);
     void  draw(Renderer2D& r);
     bool  finished();
-    float duration();
 }

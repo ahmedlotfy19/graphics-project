@@ -105,7 +105,6 @@ static void projectileHits(World& w, float dt)
 
         pr.age += dt;
         pr.x += pr.vx * dt;
-        pr.y += pr.vy * dt;
 
         if (pr.x < -50 || pr.x > VIRTUAL_W + 50)
         {

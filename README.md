@@ -303,7 +303,7 @@ void drawSurvivor(Renderer2D& r, float x, float groundY, float anim, float damag
     // head + hair + eye
     r.circle(0, 80, 12, Colors::rgb(235, 195, 160));
     r.pie(0, 82, 13, 0.2f, 2.9f, Colors::rgb(70, 45, 30));
-    r.circle(5, 80, 2, Colors::Black);
+    r.circle(5, 80, 2, Colors::rgb(0, 0, 0));
 
     r.pop();                               // restore
 }
@@ -349,7 +349,7 @@ Transforms combine: translate to a joint, then rotate, then draw the limb.
 
 ### Colours
 `Color` is a `glm::vec4` (r, g, b, a from 0 to 1). The easiest way to make one is `Colors::rgb(255, 128, 0)` or `Colors::rgb(255, 128, 0, 120)` with alpha.
-Ready-made: `Colors::White`, `Colors::Black`.
+Ready-made: `Colors::White`.
 
 ### Tips
 * **Painter's algorithm:** shapes draw in the order you call them. Draw back parts first (far arm, far leg), then the body, then front parts.

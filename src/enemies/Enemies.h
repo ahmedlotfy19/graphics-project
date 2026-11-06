@@ -5,7 +5,7 @@ class Renderer2D;
 struct World;
 struct Projectile;
 
-enum class EnemyType { UpperRanged = 0, LowerRanged = 1, Melee = 2, Count = 3 };
+enum class EnemyType { UpperRanged = 0, LowerRanged = 1, Melee = 2 };
 
 const int SPIT = 0;
 const int SKULL = 1;

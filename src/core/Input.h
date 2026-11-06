@@ -13,7 +13,6 @@ namespace Input
 
     bool keyDown(int key);
     bool keyPressed(int key);
-    bool mouseDown(int button);
     bool mousePressed(int button);
     void consumeClick();
 

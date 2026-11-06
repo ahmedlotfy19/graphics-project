@@ -5,7 +5,6 @@ static GLFWwindow* window = nullptr;
 
 static bool keysDown[GLFW_KEY_LAST + 1];
 static bool keysPressed[GLFW_KEY_LAST + 1];
-static bool buttonsDown[GLFW_MOUSE_BUTTON_LAST + 1];
 static bool buttonsPressed[GLFW_MOUSE_BUTTON_LAST + 1];
 static bool clickUsed = false;
 static glm::vec2 mousePos(0, 0);
@@ -28,14 +27,7 @@ static void onMouseButton(GLFWwindow*, int button, int action, int)
 {
     if (button < 0 || button > GLFW_MOUSE_BUTTON_LAST) return;
     if (action == GLFW_PRESS)
-    {
-        buttonsDown[button] = true;
         buttonsPressed[button] = true;
-    }
-    else if (action == GLFW_RELEASE)
-    {
-        buttonsDown[button] = false;
-    }
 }
 
 namespace Input
@@ -72,7 +64,6 @@ namespace Input
 
     bool keyDown(int key)    { return keysDown[key]; }
     bool keyPressed(int key) { return keysPressed[key]; }
-    bool mouseDown(int b)    { return buttonsDown[b]; }
 
     bool mousePressed(int b)
     {

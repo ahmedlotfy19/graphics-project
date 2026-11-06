@@ -137,7 +137,6 @@ namespace Cutscene
     void reset()          { g_time = 0; }
     void update(float dt) { g_time += dt; }
     bool finished()       { return g_time >= DURATION; }
-    float duration()      { return DURATION; }
 
     void draw(Renderer2D& r)
     {

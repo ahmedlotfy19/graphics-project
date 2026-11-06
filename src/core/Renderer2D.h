@@ -13,7 +13,6 @@ namespace Colors
     }
 
     const Color White = Color(1, 1, 1, 1);
-    const Color Black = Color(0, 0, 0, 1);
 }
 
 class Renderer2D

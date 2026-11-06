@@ -10,9 +10,7 @@
 #include "../core/Text.h"
 #include "../core/UI.h"
 #include "../core/Input.h"
-#include "../core/Audio.h"
 
-#include <GLFW/glfw3.h>
 #include <cmath>
 #include <string>
 

@@ -18,7 +18,6 @@
 #include "../core/Input.h"
 #include "../core/Audio.h"
 
-#include <GLFW/glfw3.h>
 #include <cmath>
 
 using Colors::rgb;

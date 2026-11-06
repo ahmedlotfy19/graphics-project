@@ -14,7 +14,7 @@ class Renderer2D;
 struct World;
 struct Projectile;
 
-enum class PlayerType { Melee = 0, Ranged = 1, Defense = 2, Count = 3 };
+enum class PlayerType { Melee = 0, Ranged = 1, Defense = 2 };
 enum class Pose { Normal, Jumping, Ducking };
 
 struct Player

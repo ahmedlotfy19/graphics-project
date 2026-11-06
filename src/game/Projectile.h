@@ -7,7 +7,7 @@ struct Projectile
     bool  fromPlayer = true;
     int   lane = 0;
     float x = 0, y = 0;
-    float vx = 0, vy = 0;
+    float vx = 0;
     int   damage = 1;
     AttackHeight height = AttackHeight::Mid;
     int   kind = 0;
