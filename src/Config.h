@@ -2,7 +2,7 @@
 
 constexpr int   VIRTUAL_W = 1280;
 constexpr int   VIRTUAL_H = 720;
-constexpr const char* GAME_TITLE = "LAST STAND";
+constexpr const char* GAME_TITLE = "ZOMBIE LAND";
 
 constexpr int   NUM_LANES       = 4;
 constexpr float LANE_HEIGHT     = 145.0f;

@@ -76,7 +76,7 @@ static void moveProjectiles(World& w, float dt)
         if (pr.kind == SPIT)
             pr.y = laneGroundY(pr.lane) + 76 + 3 * sin(pr.age * 14);
 
-        float range = pr.kind == SPIT ? 440.0f : 520.0f;
+        float range = pr.kind == SPIT ? 300.0f : 520.0f;
         if (pr.age * fabs(pr.vx) > range || pr.x < HOME_BASE_RIGHT)
         {
             pr.alive = false;

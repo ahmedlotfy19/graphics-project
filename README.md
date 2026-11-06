@@ -1,4 +1,4 @@
-# LAST STAND: DMET 502 Project 1
+# ZOMBIE LAND: DMET 502 Project 1
 
 A 2D side-view zombie lane-defense game in C++ and modern OpenGL 3.3.
 Survivors defend their base against three waves of zombies coming across four lanes.
@@ -561,7 +561,7 @@ Before zipping, test it from a **fresh clone** on another machine if possible.
 **Video (Member 4 edits, 2–5 minutes, with voiceover):**
 1. University name and logo
 2. Course name and semester (DMET 502 Computer Graphics, Winter 2026)
-3. Project name (LAST STAND)
+3. Project name (ZOMBIE LAND)
 4. Students' names
 5. Gameplay: describe the game, its aim and how to play. Show the cutscene, all 3 player and zombie types, jump/duck, unlocking cards, all 3 waves, winning and losing, and all menus including sound settings
 6. Thank you

@@ -31,7 +31,7 @@ static float attackDelay(EnemyType t)
 {
     if (t == EnemyType::Melee) return 1.4f;
     if (t == EnemyType::LowerRanged) return 3.6f;
-    return 3.2f;
+    return 5.0f;
 }
 
 static float attackLength(EnemyType t)
@@ -346,7 +346,7 @@ static void shoot(World& w, const Enemy& e)
         p.height = AttackHeight::High;
         p.x = e.x - 22;
         p.y = laneGroundY(e.lane) + 76;
-        p.vx = -270;
+        p.vx = -200;
     }
     else
     {
