@@ -32,7 +32,6 @@ static const float BOLT_SPEED    = 460;
 static const float JUMP_TIME     = 0.7f;
 static const float JUMP_HEIGHT   = 38;
 static const float MIN_DUCK_TIME = 0.45f;
-static const float DEFENSE_X     = 320;
 
 static void leg(Renderer2D& r, float hipX, float hipY, float angle, float width, float length,
                 Color cloth, Color boot, float toe)
@@ -297,12 +296,12 @@ static void shootBolt(World& w, const Player& p)
 
 namespace Players
 {
-    void spawn(World& w, PlayerType t, int lane)
+    void spawn(World& w, PlayerType t, int lane, float x)
     {
         Player p;
         p.type = t;
         p.lane = lane;
-        p.x = PLAYER_SPAWN_X;
+        p.x = x;
 
         if (t == PlayerType::Melee)
         {
@@ -323,7 +322,6 @@ namespace Players
             p.hp = DEFENSE_PLAYER_HP;
             p.halfWidth = 30;
             p.height = 92;
-            p.x = DEFENSE_X;
         }
         p.maxHp = p.hp;
 

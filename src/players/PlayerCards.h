@@ -9,6 +9,8 @@
 //
 //  Flow: select one or more lanes, then click an unlocked card -> one player of
 //  that type is placed in each selected lane you can afford.
+//  Melee / Ranged appear at the left end. Defense: after clicking its card,
+//  click a spot on the field and it is placed there (click the card again to cancel).
 // ============================================================================
 #include "Players.h"
 
@@ -18,7 +20,8 @@ struct World;
 struct CardState
 {
     int hovered = -1;
-    float warnUntil = -1.0f;   // "select a lane first" message is shown until w.time reaches this
+    float warnUntil = -1.0f;      // "select a lane first" message is shown until w.time reaches this
+    bool  placingDefense = false; // Defense card clicked, waiting for a click on the field
 };
 
 namespace PlayerCards

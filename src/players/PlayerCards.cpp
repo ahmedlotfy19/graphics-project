@@ -36,24 +36,55 @@ static void padlock(Renderer2D& r, float cx, float cy)
     r.rect(cx - 0.8f, cy - 4.5f, 1.6f, 4, Color(0.2f, 0.2f, 0.2f, 1));
 }
 
-static void placePlayers(World& w, PlayerType t)
+static bool anyLaneSelected(const World& w)
 {
-    bool anyLaneSelected = false;
+    for (int lane = 0; lane < NUM_LANES; lane++)
+        if (w.lanes.selected[lane]) return true;
+    return false;
+}
+
+static float defenseX(float mouseX)
+{
+    float left = HOME_BASE_RIGHT + 30;
+    float right = FIELD_RIGHT - 40;
+    if (mouseX < left) return left;
+    if (mouseX > right) return right;
+    return mouseX;
+}
+
+static void placePlayers(World& w, PlayerType t, float x)
+{
+    if (!anyLaneSelected(w))
+    {
+        w.cards.warnUntil = w.time + 1.6f;
+        return;
+    }
 
     for (int lane = 0; lane < NUM_LANES; lane++)
     {
-        if (!w.lanes.selected[lane]) continue;
-        anyLaneSelected = true;
-
-        if (w.coins >= PlayerCards::cost(t))
+        if (w.lanes.selected[lane] && w.coins >= PlayerCards::cost(t))
         {
             w.coins -= PlayerCards::cost(t);
-            Players::spawn(w, t, lane);
+            Players::spawn(w, t, lane, x);
         }
     }
+}
 
-    if (!anyLaneSelected)
+static void clickCard(World& w, PlayerType t)
+{
+    if (t != PlayerType::Defense)
+    {
+        w.cards.placingDefense = false;
+        placePlayers(w, t, PLAYER_SPAWN_X);
+    }
+    else if (!anyLaneSelected(w))
+    {
         w.cards.warnUntil = w.time + 1.6f;
+    }
+    else
+    {
+        w.cards.placingDefense = !w.cards.placingDefense;
+    }
 }
 
 namespace PlayerCards
@@ -84,8 +115,17 @@ namespace PlayerCards
             if (Input::mousePressed(GLFW_MOUSE_BUTTON_LEFT))
             {
                 Input::consumeClick();
-                placePlayers(w, t);
+                clickCard(w, t);
             }
+        }
+
+        glm::vec2 mouse = Input::mouse();
+        bool onField = laneAtY(mouse.y) >= 0;
+        if (w.cards.placingDefense && onField && Input::mousePressed(GLFW_MOUSE_BUTTON_LEFT))
+        {
+            Input::consumeClick();
+            placePlayers(w, PlayerType::Defense, defenseX(mouse.x));
+            w.cards.placingDefense = false;
         }
     }
 
@@ -95,7 +135,8 @@ namespace PlayerCards
         {
             PlayerType t = (PlayerType)i;
             bool unlocked = isUnlocked(w, t);
-            bool hover = w.cards.hovered == i;
+            bool placing = w.cards.placingDefense && t == PlayerType::Defense;
+            bool hover = w.cards.hovered == i || placing;
             float x = cardX(i);
             float y = hover ? CARDS_Y + 4 : CARDS_Y;
             float middle = x + CARD_W / 2;
@@ -123,6 +164,25 @@ namespace PlayerCards
                 padlock(r, x + CARD_W - 15, y + CARD_H - 17);
 
             r.pop();
+        }
+
+        if (w.cards.placingDefense)
+        {
+            glm::vec2 mouse = Input::mouse();
+            if (laneAtY(mouse.y) >= 0)
+            {
+                for (int lane = 0; lane < NUM_LANES; lane++)
+                {
+                    if (!w.lanes.selected[lane]) continue;
+                    r.push();
+                    r.setAlpha(0.45f);
+                    Players::drawModel(r, PlayerType::Defense, defenseX(mouse.x), laneGroundY(lane), w.time,
+                                       Pose::Normal, 0, -1, false);
+                    r.pop();
+                }
+            }
+            Text::drawShadowed(r, "CLICK ON THE FIELD TO PLACE THE DEFENSE", CARDS_X + 150, 566, 14,
+                               Colors::rgb(255, 220, 120), Align::Center);
         }
 
         float timeLeft = w.cards.warnUntil - w.time;

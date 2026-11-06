@@ -422,7 +422,7 @@ Each item is a spec requirement.
 - [x] Set `p.height` to the model's real height so the health bar sits right above it
 
 **Behaviour (`Players::update`)**
-- [x] Melee and Ranged walk right from `PLAYER_SPAWN_X` automatically. **Defense never moves**
+- [x] Melee and Ranged walk right from `PLAYER_SPAWN_X` automatically. **Defense never moves** and is placed where you click on the field
 - [x] Stop while touching a zombie (`p.engaged`), resume when it dies
 - [x] Attack automatically from the moment they're placed, **even with no enemy in the lane**
 - [x] Ranged: fire projectiles into `w.projectiles` (`fromPlayer = true`, `height = AttackHeight::Mid`). The projectile **animates** and **disappears on hit**. It never harms players
@@ -509,7 +509,7 @@ Agree on these in the group chat early. Most are already wired up.
 | Member 3 | dodge rule: `High` misses a `Ducking` player, `Low` misses a `Jumping` player, `Mid` always hits |
 
 ### Member 2 ↔ Member 4: placement & lane selection
-Current flow (spec section 3.2): **click lane(s) to select them, then click an unlocked card**. One player of that type is placed at the left end of **each selected lane** you can afford.
+Current flow (spec section 3.2): **click lane(s) to select them, then click an unlocked card**. Melee and Ranged: one player is placed at the left end of **each selected lane** you can afford. Defense: after clicking its card, a see-through guard follows the mouse. **Click a spot on the field** to place one there in each selected lane, or click the card again to cancel.
 Jump/duck applies to players in `w.lanes.selected[]`. If you change the flow, keep two things: lane selection must stay toggleable, and cards must call `Input::consumeClick()`.
 
 ### Member 4 ↔ Members 2 & 3: the cutscene uses the real models
@@ -622,7 +622,7 @@ Before zipping, test it from a **fresh clone** on another machine if possible.
 | 6 | 0:40–0:58 | **Cutscene (do NOT skip it)** | Click **START GAME** and let the 17 s intro play to the end |
 | 7 | 0:58–1:20 | Wave 1, how to play | Hover a lane (it lights up), click 2 lanes to **select** them (yellow outline and arrow), then click the **MELEE** card. A melee player appears in each selected lane. Show that **RANGED** and **DEFENSE** are **grey and locked** |
 | 8 | 1:20–1:45 | Wave 1, fighting | The Spitter spits at head height. Select its lane and hold **S / Down** to **duck** under it. Kill zombies, show a coin **dropping, bouncing and being collected**, and show the coin counter going up |
-| 9 | 1:45–2:10 | Unlocking cards | Once coins ≥ 20, **RANGED** turns colourful. Place one and show its crossbow bolts. At ≥ 30, place a **DEFENSE** player and show that it doesn't move and **protects the players behind it** |
+| 9 | 1:45–2:10 | Unlocking cards | Once coins ≥ 20, **RANGED** turns colourful. Place one and show its crossbow bolts. At ≥ 30, select a lane, click **DEFENSE**, then **click a spot on the field** to place the guard there. Show that it doesn't move and **protects the players behind it** |
 | 10 | 2:10–2:40 | Wave 2 | **Bone Rollers** roll skulls along the ground. Select the lane and press **W / Up** to **jump** over them |
 | 11 | 2:40–3:10 | Wave 3 | The armoured **Brute** runs fast and hits for 2. Show the **red damage tint** on hurt characters and the health bars |
 | 12 | 3:10–3:20 | Pause menu | Press **Esc**, show **CONTINUE / RESTART / MAIN MENU**, press CONTINUE |
@@ -647,7 +647,7 @@ Before zipping, test it from a **fresh clone** on another machine if possible.
 >
 > **Aim:** "The aim is to protect the Safe House on the left. Zombies come from the right in three waves. If a single zombie reaches the house, you lose. Survive all three waves to win."
 >
-> **How to play:** "Click a lane to select it. You can select several. Then click a card to place a survivor at the start of each selected lane. Melee survivors fight up close with an axe, Ranged survivors shoot crossbow bolts, and Defense survivors hold their position and protect everyone behind them. Every survivor except the defender walks forward and attacks automatically."
+> **How to play:** "Click a lane to select it. You can select several. Then click a card to place a survivor at the start of each selected lane. Melee survivors fight up close with an axe, Ranged survivors shoot crossbow bolts, and Defense survivors are placed wherever you click on the lane, hold that spot and protect everyone behind them. Every survivor except the defender walks forward and attacks automatically."
 >
 > **Coins:** "Placing survivors costs coins. Every zombie you kill drops a coin that bounces onto the lane, and walking into it collects it. Cards you can't afford stay grey and locked, and unlock as soon as you have enough coins."
 >

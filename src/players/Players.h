@@ -4,7 +4,8 @@
 //
 //   Melee   : survivor with a fire axe (swings once per second)
 //   Ranged  : ranger with a crossbow  (fires a bolt every 1.7 s)
-//   Defense : riot guard with a big shield (never moves, takes hits for the players behind it)
+//   Defense : riot guard with a big shield (placed where you click, never moves,
+//             takes hits for the players behind it)
 //
 //  Fields marked REQUIRED are read by other members' code - keep their names.
 // ============================================================================
@@ -41,7 +42,9 @@ struct Player
 
 namespace Players
 {
-    void spawn(World& w, PlayerType t, int lane);
+    // x = where the player appears. Melee and Ranged always start at the left end;
+    // Defense is placed wherever the player clicked on the field.
+    void spawn(World& w, PlayerType t, int lane, float x = PLAYER_SPAWN_X);
     void update(World& w, float dt);
     void draw(Renderer2D& r, const World& w, const Player& p);
     void drawProjectile(Renderer2D& r, const Projectile& pr);
