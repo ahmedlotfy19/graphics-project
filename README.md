@@ -4,8 +4,8 @@ A 2D side-view zombie lane-defense game in C++ and modern OpenGL 3.3.
 Survivors defend their base against three waves of zombies coming across four lanes.
 
 **Current state:** the whole game loop already runs: main menu → cutscene → gameplay → pause → win/lose, with sound.
-Member 1's systems are finished. Everything owned by Members 2, 3 and 4 is a **working placeholder** (coloured boxes, basic logic) in that member's own files.
-Your job is to replace your placeholders with the real thing. You should never need to edit another member's files.
+Members 1, 2 and 3 are finished. Member 4's files (`src/world/`) are still **working placeholders** (flat lanes, box base, short placeholder cutscene).
+Replace your placeholders with the real thing. You should never need to edit another member's files.
 
 ---
 
@@ -119,13 +119,12 @@ src/
     └── Cutscene.*                  intro cutscene
 assets/audio/             sound files (anyone can replace them)
 tools/                    make_placeholder_sounds.py
-archive/                  old triangle demo (not compiled)
 ```
 
 | Member | Area | Status |
 |---|---|---|
 | **1: Core & UI** | `main.cpp`, `Config.h`, `core/`, `game/` | ✅ Done |
-| **2: Players** | `players/` | 🟨 Placeholder: boxes, walking, card lock/unlock |
+| **2: Players** | `players/` | ✅ Done: Melee / Ranged / Defense models, jump and duck, cards |
 | **3: Enemies & combat** | `enemies/` | ✅ Done: Spitter / Bone Roller / Brute models, High/Low attacks, dodging, waves |
 | **4: World & cutscene** | `world/` | 🟨 Placeholder: flat lanes, box base, 4 s placeholder cutscene. Lane hover/select works |
 
@@ -275,13 +274,10 @@ void drawSurvivor(Renderer2D& r, float x, float groundY, float anim, float damag
 | Function | Draws |
 |---|---|
 | `rect(x, y, w, h, c)` | rectangle |
-| `rectCentered(cx, cy, w, h, c)` | rectangle centred on a point |
 | `rectGradient(x, y, w, h, bottom, top)` | vertical gradient (sky, ground) |
-| `rectHGradient(x, y, w, h, left, right)` | horizontal gradient |
 | `rectOutline(x, y, w, h, thickness, c)` | hollow rectangle |
 | `roundedRect(x, y, w, h, radius, c)` | rounded rectangle (bodies, cards) |
 | `triangle(a, b, c, col)` | triangle, points are `glm::vec2` |
-| `quad(a, b, c, d, col)` | any 4-point shape, points in order around the edge |
 | `circle(cx, cy, r, c)` | circle |
 | `ellipse(cx, cy, rx, ry, c)` | ellipse (shadows, heads) |
 | `ring(cx, cy, innerR, outerR, c)` | hollow circle |
@@ -298,7 +294,7 @@ The optional last parameter `segments` on circles and arcs controls smoothness (
 |---|---|
 | `push()` / `pop()` | save / restore the transform **and** the filters. Always pair them |
 | `translate(x, y)` | move the origin |
-| `rotate(rad)` / `rotateDeg(deg)` | rotate around the current origin |
+| `rotate(rad)` | rotate around the current origin |
 | `scale(sx, sy)` / `scale(s)` | scale. **`scale(-1, 1)` mirrors** a model so it faces left (useful for zombies) |
 
 Transforms combine: translate to a joint, then rotate, then draw the limb.
@@ -312,7 +308,7 @@ Transforms combine: translate to a joint, then rotate, then draw the limb.
 
 ### Colours
 `Color` is a `glm::vec4` (r, g, b, a from 0 to 1). The easiest way to make one is `Colors::rgb(255, 128, 0)` or `Colors::rgb(255, 128, 0, 120)` with alpha.
-Ready-made: `Colors::White, Black, Red, Green, Yellow, Gray, Clear`. Helpers: `Colors::lerp(a, b, t)`, `Colors::withAlpha(c, a)`.
+Ready-made: `Colors::White`, `Colors::Black`.
 
 ### Tips
 * **Painter's algorithm:** shapes draw in the order you call them. Draw back parts first (far arm, far leg), then the body, then front parts.
@@ -328,9 +324,7 @@ Ready-made: `Colors::White, Black, Red, Green, Yellow, Gray, Clear`. Helpers: `C
 ```cpp
 Text::draw(r, "WAVE 1", x, y, size, color);                     // left-aligned, (x,y) = bottom-left
 Text::draw(r, "HELLO", x, y, 20, Colors::White, Align::Center); // Align::Left / Center / Right
-Text::drawShadowed(r, "SUBTITLE", x, y, 18, Colors::White, Align::Center);  // readable on busy backgrounds
-float w = Text::width("HELLO", 20);
-```
+Text::drawShadowed(r, "SUBTITLE", x, y, 18, Colors::White, Align::Center);  // readable on busy backgrounds```
 `size` is the letter height in pixels. Lowercase is drawn as capitals, and `\n` starts a new line. This is ideal for cutscene subtitles.
 
 ### Input (`core/Input.h`)
@@ -379,30 +373,30 @@ Each item is a spec requirement. Tick them off in your placeholder file's header
 ### Member 2: Players (`src/players/`)
 
 **Models (`Players::draw`)**
-- [ ] **Melee** player: distinct body, holds a close-range weapon (bat, machete, axe...) that **animates in the hand** when attacking
-- [ ] **Ranged** player: distinct body, holds a ranged weapon (crossbow, slingshot, rifle...)
-- [ ] **Defense** player: distinct, bulky and stationary (riot shield, barricade carrier, armoured...)
-- [ ] The three types differ in **shape, equipment and silhouette, not colour**
-- [ ] Walk animation, attack animation, jump pose, duck pose
-- [ ] Red damage tint: `r.setDamageTint(1.0f - (float)p.hp / p.maxHp)` (or scale the model down per hit; pick one)
-- [ ] Set `p.height` to the model's real height so the health bar sits right above it
+- [x] **Melee** player: distinct body, holds a close-range weapon (bat, machete, axe...) that **animates in the hand** when attacking
+- [x] **Ranged** player: distinct body, holds a ranged weapon (crossbow, slingshot, rifle...)
+- [x] **Defense** player: distinct, bulky and stationary (riot shield, barricade carrier, armoured...)
+- [x] The three types differ in **shape, equipment and silhouette, not colour**
+- [x] Walk animation, attack animation, jump pose, duck pose
+- [x] Red damage tint: `r.setDamageTint(1.0f - (float)p.hp / p.maxHp)` (or scale the model down per hit; pick one)
+- [x] Set `p.height` to the model's real height so the health bar sits right above it
 
 **Behaviour (`Players::update`)**
-- [ ] Melee and Ranged walk right from `PLAYER_SPAWN_X` automatically. **Defense never moves**
-- [ ] Stop while touching a zombie (`p.engaged`), resume when it dies
-- [ ] Attack automatically from the moment they're placed, **even with no enemy in the lane**
-- [ ] Ranged: fire projectiles into `w.projectiles` (`fromPlayer = true`, `height = AttackHeight::Mid`). The projectile **animates** and **disappears on hit**. It never harms players
-- [ ] **Jump** on W/Up and **duck** on S/Down for every player in a **selected** lane (`w.lanes.selected[p.lane]`). Set `p.pose` (Jumping/Ducking) and `p.y` (jump height). Defense players ignore this
-- [ ] All players deal `PLAYER_DAMAGE` (1) per attack
-- [ ] Decide what happens at the right edge (stop, or leave the field and get removed)
-- [ ] `Players::isProtected`: true while a living Defense player in the same lane is **to the right of** (in front of) this player
+- [x] Melee and Ranged walk right from `PLAYER_SPAWN_X` automatically. **Defense never moves**
+- [x] Stop while touching a zombie (`p.engaged`), resume when it dies
+- [x] Attack automatically from the moment they're placed, **even with no enemy in the lane**
+- [x] Ranged: fire projectiles into `w.projectiles` (`fromPlayer = true`, `height = AttackHeight::Mid`). The projectile **animates** and **disappears on hit**. It never harms players
+- [x] **Jump** on W/Up and **duck** on S/Down for every player in a **selected** lane (`w.lanes.selected[p.lane]`). Set `p.pose` (Jumping/Ducking) and `p.y` (jump height). Defense players ignore this
+- [x] All players deal `PLAYER_DAMAGE` (1) per attack
+- [x] At the right edge they leave the field and are removed
+- [x] `Players::isProtected`: true while a living Defense player in the same lane is **to the right of** (in front of) this player
 
 **Cards (`PlayerCards.cpp`)**
-- [ ] Draw a **mini version of each model** on its card, with the name and cost
-- [ ] Locked (`coins < cost`): grayscale (`r.setGrayscale(true)`), **no hover and no click**
-- [ ] Unlocked: normal colours, hover effect, clickable
-- [ ] Unlock and re-lock happen automatically (already true: `isUnlocked` checks coins every frame)
-- [ ] Placement flow (see [§9](#9-interfaces-between-members)). Deduct `cost(type)` from `w.coins` and play `Sfx::Place`
+- [x] Draw a **mini version of each model** on its card, with the name and cost
+- [x] Locked (`coins < cost`): grayscale (`r.setGrayscale(true)`), **no hover and no click**
+- [x] Unlocked: normal colours, hover effect, clickable
+- [x] Unlock and re-lock happen automatically (already true: `isUnlocked` checks coins every frame)
+- [x] Placement flow (see [§9](#9-interfaces-between-members)). Deduct `cost(type)` from `w.coins` and play `Sfx::Place`
 
 Costs are already set to spec in `Config.h`: Melee 10, Ranged 20 (2×), Defense 30 (3×), start coins 30 (3 melee).
 
@@ -412,13 +406,13 @@ Costs are already set to spec in `Config.h`: Melee 10, Ranged 20 (2×), Defense 
 - [x] **Easy: Spitter**, a thin hunched zombie whose acid sac swells before it spits. The spit flies at head height (`AttackHeight::High`, so **duck**)
 - [x] **Medium: Bone Roller**, a stocky zombie in overalls with a sack of skulls. It bowls skulls along the ground (`AttackHeight::Low`, so **jump**)
 - [x] **Hard: Brute**, armoured with a spiked shoulder pad, helmet, glowing eyes and a nail club. It runs and hits for 2
-- [x] Walk/run cycles, attack animations, charge-up tells, red damage tint plus a hit flash, fade-in with a dirt burst on spawn
-- [x] Projectile visuals and impact splashes (acid splat, skull shatter)
+- [x] Walk/run cycles, attack animations (swelling acid sac, skull throw, club swing) and a red damage tint
+- [x] Projectile visuals: wobbling acid spit and a rolling skull
 - [x] `Enemies::drawModel(r, type, x, groundY, anim, ...)` draws any zombie without a World (for the cutscene)
 
 **Behaviour (`Enemies.cpp`, `Combat.cpp`)**
 - [x] Move left (Spitter 30 px/s, Roller 26 px/s, Brute 72 px/s), and stop while touching a player
-- [x] Attack from the moment they appear, even with no player in the lane (spit range 440 px, skull range 520 px)
+- [x] Attack from the moment they appear, even with no player in the lane (spit every 5 s with 300 px range, skull every 3.6 s with 520 px range)
 - [x] Dodging: Ducking avoids High, Jumping avoids Low. Defense players never dodge and absorb hits
 - [x] Damage 1, Brute 2. Melee players hit the zombie they touch once per second (`attackTimer`)
 - [x] Combat moves all projectiles. Player bolts are hit-tested by Member 2's code
@@ -508,7 +502,7 @@ Your `draw()` can call it, and Member 4 calls it from the cutscene.
 | **Attack** | close | projectile | none | from **above** (duck) | from **below** (jump) | close |
 | **Cost / unlock** | 10 | 20 | 30 | | | |
 
-* Start with **30 coins**. Each zombie drops a coin worth **10** (`COIN_DROP_VALUE`), collected when a player touches it.
+* Start with **30 coins**. Each zombie drops a coin worth **20** (`COIN_DROP_VALUE`) that bounces onto the lane and is, collected when a player touches it.
 * A card is unlocked while `coins >= cost` and **re-locks** if coins drop below.
 * **Win:** all 3 waves spawned and every zombie dead. **Lose:** any zombie reaches the home base, and then everything freezes.
 * Waves: 3 → 5 → 10 zombies.
