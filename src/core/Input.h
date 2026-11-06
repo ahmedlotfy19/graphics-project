@@ -1,4 +1,9 @@
 #pragma once
+// ============================================================================
+//  Input  -  keyboard and mouse.                         Owner: MEMBER 1
+//  keyPressed = only the frame the key went down, keyDown = while held.
+//  mouse() is already in game coordinates. consumeClick() stops a click reaching lanes below.
+// ============================================================================
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>

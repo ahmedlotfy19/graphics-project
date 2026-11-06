@@ -1,4 +1,9 @@
 #pragma once
+// ============================================================================
+//  Projectile + Collectible structs.                     Owner: MEMBER 1
+//  Projectile: crossbow bolt (fromPlayer), spit or skull (kind = SPIT / SKULL).
+//  Collectible: a coin that bounces on its lane until a player walks into it.
+// ============================================================================
 
 enum class AttackHeight { High, Low, Mid };
 

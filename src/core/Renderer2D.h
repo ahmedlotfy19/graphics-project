@@ -1,4 +1,9 @@
 #pragma once
+// ============================================================================
+//  Renderer2D  -  draws every shape in the game.         Owner: MEMBER 1
+//  Coordinates are 1280x720, origin bottom-left, y up.
+//  push/pop save the transform and the filters (damage tint, grayscale, alpha).
+// ============================================================================
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <vector>

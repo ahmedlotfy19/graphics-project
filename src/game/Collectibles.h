@@ -1,4 +1,8 @@
 #pragma once
+// ============================================================================
+//  Collectibles  -  coins dropped by zombies.            Owner: MEMBER 1
+//  spawn() is called by Enemies::damage when a zombie dies.
+// ============================================================================
 
 class Renderer2D;
 struct World;

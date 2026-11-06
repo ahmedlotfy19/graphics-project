@@ -1,4 +1,9 @@
 #pragma once
+// ============================================================================
+//  World  -  everything that exists during a game.       Owner: MEMBER 1
+//  Every system gets a World& and reads or changes it.
+//  Things are removed by setting alive = false; Game erases them at the end of the frame.
+// ============================================================================
 #include "../Config.h"
 #include "Projectile.h"
 #include "../players/Players.h"

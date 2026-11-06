@@ -1,4 +1,8 @@
 #pragma once
+// ============================================================================
+//  UI  -  buttons, panels, health bars and the coin icon.  Owner: MEMBER 1
+//  button() draws the button and returns true on the frame it is clicked.
+// ============================================================================
 #include "Renderer2D.h"
 #include <string>
 

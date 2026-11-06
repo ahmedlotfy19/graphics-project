@@ -1,4 +1,9 @@
 #pragma once
+// ============================================================================
+//  Config  -  every shared number in one place.            Owner: MEMBER 1
+//  Screen size, lane layout, costs, HP, damage and wave sizes.
+//  Tune numbers here; tell the group before renaming anything.
+// ============================================================================
 
 constexpr int   VIRTUAL_W = 1280;
 constexpr int   VIRTUAL_H = 720;

@@ -1,4 +1,10 @@
 #pragma once
+// ============================================================================
+//  Enemies  -  the 3 zombie types.                       Owner: MEMBER 3
+//  UpperRanged : Spitter, spits acid at head height (duck)
+//  LowerRanged : Bone Roller, rolls skulls along the ground (jump)
+//  Melee       : Brute, runs fast and hits with a club for 2
+// ============================================================================
 #include "../Config.h"
 
 class Renderer2D;

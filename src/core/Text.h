@@ -1,4 +1,8 @@
 #pragma once
+// ============================================================================
+//  Text  -  built-in pixel font.                         Owner: MEMBER 1
+//  size = letter height in pixels. A "\n" in the text starts a new line.
+// ============================================================================
 #include "Renderer2D.h"
 #include <string>
 

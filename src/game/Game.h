@@ -1,4 +1,8 @@
 #pragma once
+// ============================================================================
+//  Game  -  menus, screens and the game loop.            Owner: MEMBER 1
+//  frame() runs once per frame and does whatever the current GameState needs.
+// ============================================================================
 #include "World.h"
 
 struct GLFWwindow;

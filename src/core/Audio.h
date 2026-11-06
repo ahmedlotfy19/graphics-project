@@ -1,4 +1,8 @@
 #pragma once
+// ============================================================================
+//  Audio  -  music and sound effects (miniaudio).        Owner: MEMBER 1
+//  Sounds are loaded by name from assets/audio/<name>.wav
+// ============================================================================
 
 namespace Sfx
 {

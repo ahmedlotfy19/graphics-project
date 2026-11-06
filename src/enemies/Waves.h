@@ -1,4 +1,8 @@
 #pragma once
+// ============================================================================
+//  Waves  -  spawns waves 1-3 (3, 5, then 10 zombies).    Owner: MEMBER 3
+//  index = current wave (0, 1, 2), queue = the zombie types of that wave in random order.
+// ============================================================================
 #include "Enemies.h"
 #include <vector>
 

@@ -1,8 +1,8 @@
 #pragma once
 // ============================================================================
 //  Cutscene  -  the 10-20 s animated intro.         Owner: MEMBER 4
-//  Must show at least 1 player + 1 zombie, animated, with a short dialogue
-//  (subtitles OK, but not text only), and explain what is being defended.
+//  17 s intro: a survivor and zombies talk and fight in front of the Safe House,
+//  then the survivor runs to the lanes. Uses the real player and zombie models.
 // ============================================================================
 class Renderer2D;
 
